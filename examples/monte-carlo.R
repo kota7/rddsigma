@@ -5,12 +5,11 @@ library(dplyr)
 
 ## todo: parallelize this?
 
-
 set.seed(123)
 
 results <- NULL
-B <- 100
-N <- 500
+B <- 500
+N <- 1000
 cutoff <- 0
 models <- expand.grid(sigma = c(0.2, 0.8),
                       x_dist = c("gauss", "gaussmix"),
@@ -25,10 +24,11 @@ for (i in 1:nrow(models))
   {
     cat(sprintf("\r  %4d/%4d", b, B))
     dat <- gen_data(N, sigma, cutoff)
-    o1 <- tsgauss(dat$d, dat$w, 0)
+    o1 <- tsgauss(dat$d, dat$w, cutoff)
 
     tmp <- data.frame(data_id = i, sigma = sigma, x_dist = x_dist,
-                      method = "2 step gauss", estimate = o1$par,
+                      method = "2 step gauss",
+                      estimate = o1$estimate, stderr = o1$stderr,
                       stringsAsFactors = FALSE)
     results <- rbind(results, tmp)
   }
@@ -39,5 +39,5 @@ ggplot(results, aes(factor(data_id), estimate, color = method)) +
   geom_boxplot()
 
 group_by(results, data_id, method) %>%
-  summarize(sigma = mean(sigma), mean(estimate), sd(estimate))
+  summarize(sigma = mean(sigma), mean(estimate), sd(estimate), mean(stderr))
 

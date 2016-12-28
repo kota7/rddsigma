@@ -8,7 +8,92 @@
 #' @examples
 #' dat <- gen_data(1000, 0.2, 0)
 #' tsgauss(dat$d, dat$w, 0)
+#' @references
+#' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 tsgauss <- function(d_vec, w_vec, cutoff, ...)
+{
+  ## remove NAs, if any
+  flg <- !is.na(d_vec) & !is.na(w_vec)
+  d_vec <- d_vec[flg]
+  w_vec <- w_vec[flg]
+  n <- sum(flg)
+  stopifnot(n > 1)
+
+  ## ML estimate for mu_x (= mu_w) and sigma_w
+  mu_x = mean(w_vec)
+  sd_w = sd(w_vec) * (n-1) / n  # ML estimate should divides by n
+
+  lfunc <- function(sigma)
+  {
+    # returns: mean log-likelihood
+
+    ## distribution of f(U | W)
+    mu_u <- sigma^2/sd_w^2 * (w_vec - mu_x)
+    sd_u <- sqrt((1 - sigma^2/sd_w^2) * sigma^2)
+    ## use helper function
+    tsgauss_lfunc_helper(d_vec, w_vec, cutoff, mu_u, sd_u, sigma)
+  }
+
+
+  lfunc_para3 <- function(param)
+  {
+    # this function takes sigma, mu_x, sd_w as argument
+    # used for hessian evaluation
+    sigma <- param[1]
+    mu_x <- param[2]
+    sd_w <- param[3]
+
+    mu_u <- sigma^2/sd_w^2 * (w_vec - mu_x)
+    sd_u <- sqrt((1 - sigma^2/sd_w^2) * sigma^2)
+    tsgauss_lfunc_helper(d_vec, w_vec, cutoff, mu_u, sd_u, sigma)
+  }
+  lfunc_each <- function(sigma)
+  {
+    # this function takes sigma and
+    # returns the full vector of likelihood
+    # used for jacobian computation
+
+    ## distribution of f(U | W)
+    mu_u <- sigma^2/sd_w^2 * (w_vec - mu_x)
+    sd_u <- sqrt((1 - sigma^2/sd_w^2) * sigma^2)
+    ## use helper function
+    tsgauss_lfunc_each_helper(d_vec, w_vec, cutoff, mu_u, sd_u, sigma)
+  }
+
+  get_avar <- function(sigma)
+  {
+    # implements Murphy and Topel (1985), section 5.1
+    R1 <- -diag(1/c(sd_w^2, sd_w^2/2))
+    tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_w))
+    R2 <- -tmp[1,1]
+    R3 <- -tmp[1, c(2,3)]
+    tmp1 <- cbind((w_vec-mu_x)/sd_w^2, -1/sd_w + (w_vec-mu_x)^2/sd_w^3)
+    tmp2 <- numDeriv::jacobian(lfunc_each, sigma)
+    R4 <- crossprod(tmp1, tmp2) / n
+
+    solve(R2) +
+      solve(R2) %*% (t(R3) %*% solve(R1) %*% R3 -
+                       t(R4) %*% solve(R1) %*% R3 -
+                       t(R3) %*% solve(R1) %*% R4) %*% solve(R2)
+  }
+
+
+  ## initial value is set to sd_w/2
+  ## range is between 1e-8 to sd_w
+  ## do not set to zero to avoid numerical error
+  o <- optim(sd_w/2, lfunc, lower = 1e-8, upper = sd_w,
+             method = "Brent", hessian = TRUE,
+             control = list(fnscale = -1, ...))
+  avar <- get_avar(o$par)
+
+  list(estimate = o$par, stderr = sqrt(avar/n), convergence = o$convergence)
+}
+
+
+
+## pure R implementation, significantly slower than that using c++ helper
+## kept for reference and debugging
+tsgauss_r <- function(d_vec, w_vec, cutoff, ...)
 {
   ## remove NAs, if any
   flg <- !is.na(d_vec) & !is.na(w_vec)
@@ -34,15 +119,11 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
   }
 
   ## initial value is set to sd_w/2
-  ## range is between 0 to sd_w
-  o <- optim(sd_w/2, lfunc, lower = 0, upper = sd_w,
+  ## range is between 1e-8 to sd_w
+  ## do not set to zero to avoid numerical error
+  o <- optim(sd_w/2, lfunc, lower = 1e-8, upper = sd_w,
              method = "Brent", hessian = TRUE,
              control = list(fnscale = -1, ...))
   return(o)
-
-
-
-  ## todo: compute standard error
-
 }
 

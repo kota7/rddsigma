@@ -25,4 +25,7 @@ Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD
 dat <- gen_data(1000, 0.2, 0)
 tsgauss(dat$d, dat$w, 0)
 }
+\references{
+Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
+}
 
