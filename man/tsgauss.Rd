@@ -4,17 +4,25 @@
 \alias{tsgauss}
 \title{Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD}
 \usage{
-tsgauss(d_vec, w_vec, ...)
+tsgauss(d_vec, w_vec, cutoff, ...)
 }
 \arguments{
 \item{d_vec}{binary integer vector of assignment}
 
 \item{w_vec}{numeric vector of observed running variable}
+
+\item{cutoff}{threshold value for assignment}
+
+\item{...}{additional controls for \code{optim}}
 }
 \value{
 estimate for the standard deviation
 }
 \description{
 Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD
+}
+\examples{
+dat <- gen_data(1000, 0.2, 0)
+tsgauss(dat$d, dat$w, 0)
 }
 
