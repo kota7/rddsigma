@@ -11,7 +11,7 @@ results <- NULL
 B <- 500
 N <- 1000
 cutoff <- 0
-models <- expand.grid(sigma = c(0.2, 0.8),
+models <- expand.grid(sigma = c(0.3, 1),
                       x_dist = c("gauss", "gaussmix"),
                       stringsAsFactors = FALSE)
 
@@ -26,18 +26,23 @@ for (i in 1:nrow(models))
     dat <- gen_data(N, sigma, cutoff)
     o1 <- tsgauss(dat$d, dat$w, cutoff)
 
-    tmp <- data.frame(data_id = i, sigma = sigma, x_dist = x_dist,
-                      method = "2 step gauss",
-                      estimate = o1$estimate, stderr = o1$stderr,
-                      stringsAsFactors = FALSE)
+    tmp <- data.frame(
+      data_id = i, sigma = sigma, x_dist = x_dist, method = "2 step gauss",
+      param = names(o1$estimate), estimate = o1$estimate, stderr = o1$stderr,
+      stringsAsFactors = FALSE)
     results <- rbind(results, tmp)
   }
   cat("\n")
 }
-ggplot(results, aes(factor(data_id), estimate, color = method)) +
+ggplot(subset(results, param == "sigma"),
+       aes(factor(data_id), estimate, color = method)) +
   theme_bw() +
   geom_boxplot()
 
-group_by(results, data_id, method) %>%
+ggplot(results, aes(factor(data_id), estimate, color = method)) +
+  theme_bw() + facet_wrap(~param) +
+  geom_boxplot()
+
+group_by(results, param, data_id, method) %>%
   summarize(sigma = mean(sigma), mean(estimate), sd(estimate), mean(stderr))
 

@@ -63,7 +63,7 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
   get_avar <- function(sigma)
   {
     # implements Murphy and Topel (1985), section 5.1
-    R1 <- -diag(1/c(sd_w^2, sd_w^2/2))
+    R1 <- diag(1/c(sd_w^2, sd_w^2/2))
     tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_w))
     R2 <- -tmp[1,1]
     R3 <- -tmp[1, c(2,3)]
@@ -71,10 +71,29 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
     tmp2 <- numDeriv::jacobian(lfunc_each, sigma)
     R4 <- crossprod(tmp1, tmp2) / n
 
-    solve(R2) +
-      solve(R2) %*% (t(R3) %*% solve(R1) %*% R3 -
-                       t(R4) %*% solve(R1) %*% R3 -
-                       t(R3) %*% solve(R1) %*% R4) %*% solve(R2)
+
+    o11 <- solve(R1)
+    o12 <- solve(R1) %*% (R4 - R3) %*% solve(R2)
+    o22 <- solve(R2) + solve(R2) %*% (t(R3) %*% solve(R1) %*% R3 -
+                                        t(R4) %*% solve(R1) %*% R3 -
+                                        t(R3) %*% solve(R1) %*% R4) %*% solve(R2)
+    o <- rbind(cbind(o11, o12), cbind(t(o12), o22))
+
+    # compute the avar for sd_x by delta method
+    sd_x <- sqrt(sd_w^2 - sigma^2)  # point estimate
+
+    # jacobian matrix for conversion:
+    # (mu_x, sd_w, sigma) -> (mu_x, sd_w, sigma, sd_x)
+    Gmat <- rbind(diag(3),
+                  matrix(c(0, sd_w/sd_x, -sigma/sd_x), nrow = 1, ncol = 3))
+    o_aug <- Gmat %*% o %*% t(Gmat)
+    rownames(o_aug) <- c("mu_x", "sd_w", "sigma", "sd_x")
+    colnames(o_aug) <- c("mu_x", "sd_w", "sigma", "sd_x")
+
+
+    # reorder, put sigma in front
+    o_aug[c("sigma", "mu_x", "sd_x", "sd_w"),
+          c("sigma", "mu_x", "sd_x", "sd_w")]
   }
 
 
@@ -86,7 +105,11 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
              control = list(fnscale = -1, ...))
   avar <- get_avar(o$par)
 
-  list(estimate = o$par, stderr = sqrt(avar/n), convergence = o$convergence)
+  list(estimate = c(sigma = o$par, mu_x = mu_x,
+                    sd_x = sqrt(sd_w^2 - o$par^2), sd_w = sd_w),
+       stderr = sqrt(diag(avar)/n),
+       avar = avar,
+       convergence = o$convergence)
 }
 
 
