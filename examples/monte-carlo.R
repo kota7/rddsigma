@@ -9,7 +9,7 @@ set.seed(123)
 
 results <- NULL
 B <- 100
-N <- 1000
+N <- 500
 cutoff <- 0
 models <- expand.grid(sigma = c(0.3, 1),
                       x_dist = c("gauss", "gaussmix"),
@@ -27,13 +27,22 @@ for (i in 1:nrow(models))
   {
     cat(sprintf("\r  %4d/%4d", b, B))
     dat <- gen_data(N, sigma, cutoff, u_dist = u_dist, x_dist = x_dist)
-    o1 <- tsgauss(dat$d, dat$w, cutoff)
-
+    o <- tsgauss(dat$d, dat$w, cutoff)
     tmp <- data.frame(
-      data_id = i, sigma = sigma, x_dist = x_dist, method = "2 step gauss",
-      param = names(o1$estimate), estimate = o1$estimate, stderr = o1$stderr,
+      data_id = i, sigma = sigma, x_dist = x_dist, method = "two-step gauss",
+      param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
       stringsAsFactors = FALSE)
     results <- rbind(results, tmp)
+
+    o <- em_gauss_lap(dat$d, dat$w, cutoff, quiet = TRUE)
+    tmp <- data.frame(
+      data_id = i, sigma = sigma, x_dist = x_dist, method = "EM (gauss/lap)",
+      param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
+      stringsAsFactors = FALSE)
+    results <- rbind(results, tmp)
+
+
+
   }
   cat("\n")
 }
@@ -48,5 +57,6 @@ ggplot(subset(results, param == "sigma"),
   geom_boxplot()
 
 group_by(results, param, data_id, method) %>%
-  summarize(sigma = mean(sigma), mean(estimate), sd(estimate), mean(stderr))
+  summarize(sigma = mean(sigma), mean(estimate), sd(estimate), mean(stderr)) %>%
+  as.data.frame()
 

@@ -190,9 +190,9 @@ em_gauss_lap <- function(d_vec, w_vec, cutoff,
   lfunc_each <- function(param)
   {
     sigma <- param[1]
-    sd_x <- param[2]
+    mu_x <- param[2]
+    sd_x <- param[3]
 
-    # this function takes sigma and
     # returns the full vector of likelihood
     # used for jacobian computation
     func <- Map(function(m, w) {
@@ -209,18 +209,24 @@ em_gauss_lap <- function(d_vec, w_vec, cutoff,
                                   abs.tol = integrate_abstol,
                                   subdivisions = integrate_subdiv)
     values <- unlist(lapply(values, `[[`, "value"))
+    log(values)
   }
 
   get_avar <- function()
   {
     # implements Murphy and Topel (1985), section 5.1
     R1 <- matrix(1/sd_w^2, nrow = 1, ncol = 1)  ## for mu_x
-    tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_x))
-    R2 <- -tmp[c(1,3), c(1,3)]  ## corresponds to sigma, mu_x
-    R3 <- -tmp[2, c(1,3), drop = FALSE]
-    tmp1 <- cbind((w_vec-mu_x)/sd_w^2)
-    tmp2 <- numDeriv::jacobian(lfunc_each, c(sigma, sd_x))
-    R4 <- crossprod(tmp1, tmp2) / n
+    # tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_x))
+    # R2 <- -tmp[c(1,3), c(1,3)]  ## corresponds to sigma, mu_x
+    # R3 <- -tmp[2, c(1,3), drop = FALSE]
+    # tmp1 <- cbind((w_vec-mu_x)/sd_w^2)
+    # tmp2 <- numDeriv::jacobian(lfunc_each, c(sigma, sd_x))
+    # R4 <- crossprod(tmp1, tmp2) / n
+    jaco1 <- cbind((w_vec-mu_x)/sd_w^2)
+    jaco2 <- numDeriv::jacobian(lfunc_each, c(sigma, mu_x, sd_x))
+    R2 <- crossprod(jaco2[, c(1,3)]) / n
+    R3 <- crossprod(jaco2[, 2, drop = FALSE], jaco2[, c(1,3)]) / n
+    R4 <- crossprod(jaco1, jaco2[, c(1, 3)]) / n
 
     o11 <- solve(R1)
     o12 <- solve(R1) %*% (R4 - R3) %*% solve(R2)

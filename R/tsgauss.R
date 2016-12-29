@@ -53,11 +53,13 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
     sd_u <- sqrt((1 - sigma^2/sd_w^2) * sigma^2)
     tsgauss_lfunc_helper(d_vec, w_vec, cutoff, mu_u, sd_u, sigma)
   }
-  lfunc_each <- function(sigma)
+  lfunc_each <- function(param)
   {
-    # this function takes sigma and
     # returns the full vector of likelihood
     # used for jacobian computation
+    sigma <- param[1]
+    mu_x <- param[2]
+    sd_w <- param[3]
 
     ## distribution of f(U | W)
     mu_u <- sigma^2/sd_w^2 * (w_vec - mu_x)
@@ -70,13 +72,16 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
   {
     # implements Murphy and Topel (1985), section 5.1
     R1 <- diag(1/c(sd_w^2, sd_w^2/2))
-    tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_w))
-    R2 <- -tmp[1,1]
-    R3 <- -tmp[c(2,3), 1, drop = FALSE]
-    tmp1 <- cbind((w_vec-mu_x)/sd_w^2, -1/sd_w + (w_vec-mu_x)^2/sd_w^3)
-    tmp2 <- numDeriv::jacobian(lfunc_each, sigma)
-    R4 <- crossprod(tmp1, tmp2) / n
-
+    #tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_w))
+    #R2 <- -tmp[1,1]
+    #R3 <- -tmp[c(2,3), 1, drop = FALSE]
+    #tmp2 <- numDeriv::jacobian(lfunc_each, sigma)
+    #R4 <- crossprod(tmp1, tmp2) / n
+    jaco1 <- cbind((w_vec-mu_x)/sd_w^2, -1/sd_w + (w_vec-mu_x)^2/sd_w^3)
+    jaco2 <- numDeriv::jacobian(lfunc_each, c(sigma, mu_x, sd_w))
+    R2 <- crossprod(jaco2[, 1, drop = FALSE]) / n
+    R3 <- crossprod(jaco2[, c(2,3)], jaco2[, 1, drop = FALSE]) / n
+    R4 <- crossprod(jaco1, jaco2[, 1, drop = FALSE]) / n
 
     o11 <- solve(R1)
     o12 <- solve(R1) %*% (R4 - R3) %*% solve(R2)
