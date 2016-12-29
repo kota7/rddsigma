@@ -147,6 +147,7 @@ em_gauss_lap <- function(d_vec, w_vec, cutoff,
     sd_x <<- new_sdx
   }
 
+  ## estimate
   convergence <- 1L
   for (i in 1:maxit)
   {
@@ -162,6 +163,81 @@ em_gauss_lap <- function(d_vec, w_vec, cutoff,
     update_parameters()
   }
 
+
+  ## compute asymptotic variance
+  lfunc_para3 <- function(param)
+  {
+    sigma <- param[1]
+    mu_x <- param[2]
+    sd_x <- param[3]
+
+    func <- Map(function(m, w) {
+      function(x) dnorm(x, m, sd_x) * bda::dlap(w-x, rate = sqrt(2)/sigma)
+    }, mu_x, w_vec)
+
+    values <- rep(list(), n)
+    values[d_vec == 1L] <- lapply(func[d_vec == 1L], integrate, cutoff, Inf,
+                                  rel.tol = integrate_reltol,
+                                  abs.tol = integrate_abstol,
+                                  subdivisions = integrate_subdiv)
+    values[d_vec == 0L] <- lapply(func[d_vec == 0L], integrate, -Inf, cutoff,
+                                  rel.tol = integrate_reltol,
+                                  abs.tol = integrate_abstol,
+                                  subdivisions = integrate_subdiv)
+    values <- unlist(lapply(values, `[[`, "value"))
+    mean(log(values))
+  }
+  lfunc_each <- function(param)
+  {
+    sigma <- param[1]
+    sd_x <- param[2]
+
+    # this function takes sigma and
+    # returns the full vector of likelihood
+    # used for jacobian computation
+    func <- Map(function(m, w) {
+      function(x) dnorm(x, m, sd_x) * bda::dlap(w-x, rate = sqrt(2)/sigma)
+    }, mu_x, w_vec)
+
+    values <- rep(list(), n)
+    values[d_vec == 1L] <- lapply(func[d_vec == 1L], integrate, cutoff, Inf,
+                                  rel.tol = integrate_reltol,
+                                  abs.tol = integrate_abstol,
+                                  subdivisions = integrate_subdiv)
+    values[d_vec == 0L] <- lapply(func[d_vec == 0L], integrate, -Inf, cutoff,
+                                  rel.tol = integrate_reltol,
+                                  abs.tol = integrate_abstol,
+                                  subdivisions = integrate_subdiv)
+    values <- unlist(lapply(values, `[[`, "value"))
+  }
+
+  get_avar <- function()
+  {
+    # implements Murphy and Topel (1985), section 5.1
+    R1 <- matrix(1/sd_w^2, nrow = 1, ncol = 1)  ## for mu_x
+    tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_x))
+    R2 <- -tmp[c(1,3), c(1,3)]  ## corresponds to sigma, mu_x
+    R3 <- -tmp[2, c(1,3), drop = FALSE]
+    tmp1 <- cbind((w_vec-mu_x)/sd_w^2)
+    tmp2 <- numDeriv::jacobian(lfunc_each, c(sigma, sd_x))
+    R4 <- crossprod(tmp1, tmp2) / n
+
+    o11 <- solve(R1)
+    o12 <- solve(R1) %*% (R4 - R3) %*% solve(R2)
+    o22 <- solve(R2) + solve(R2) %*% (t(R3) %*% solve(R1) %*% R3 -
+                                        t(R4) %*% solve(R1) %*% R3 -
+                                        t(R3) %*% solve(R1) %*% R4) %*% solve(R2)
+    o <- rbind(cbind(o11, o12), cbind(t(o12), o22))
+
+    # give names and reorder
+    rownames(o) <- c("mu_x", "sigma", "sd_x")
+    colnames(o) <- c("mu_x", "sigma", "sd_x")
+    o[c("sigma", "mu_x", "sd_x"), c("sigma", "mu_x", "sd_x")]
+  }
+
+  avar <- get_avar()
   list(estimate = c(sigma = sigma, mu_x = mu_x, sd_x = sd_x),
+       stderr = sqrt(diag(avar/n)),
+       avar = avar,
        convergence = convergence)
 }

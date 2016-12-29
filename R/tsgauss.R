@@ -72,7 +72,7 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
     R1 <- diag(1/c(sd_w^2, sd_w^2/2))
     tmp <- numDeriv::hessian(lfunc_para3, c(sigma, mu_x, sd_w))
     R2 <- -tmp[1,1]
-    R3 <- -tmp[1, c(2,3)]
+    R3 <- -tmp[c(2,3), 1, drop = FALSE]
     tmp1 <- cbind((w_vec-mu_x)/sd_w^2, -1/sd_w + (w_vec-mu_x)^2/sd_w^3)
     tmp2 <- numDeriv::jacobian(lfunc_each, sigma)
     R4 <- crossprod(tmp1, tmp2) / n
