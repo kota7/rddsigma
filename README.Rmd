@@ -13,6 +13,6 @@ knitr::opts_chunk$set(
 ```
 
 
-# rddme
+# rddsigma
 Sharp Regression Discontinuity Design with Running Variable Measured with Error 
 
