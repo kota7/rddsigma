@@ -14,7 +14,9 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     bda,
+    numDeriv,
     mixtools,
+    stats,
     Rcpp
 RoxygenNote: 5.0.1
 LinkingTo: Rcpp

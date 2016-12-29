@@ -6,3 +6,5 @@
 
 archive
 examples
+
+.travis.yml

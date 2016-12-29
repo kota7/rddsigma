@@ -3,4 +3,8 @@
 export(gen_data)
 export(tsgauss)
 importFrom(Rcpp,sourceCpp)
+importFrom(stats,optim)
+importFrom(stats,pnorm)
+importFrom(stats,rnorm)
+importFrom(stats,sd)
 useDynLib(rddsigma)
