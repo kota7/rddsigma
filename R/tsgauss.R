@@ -6,18 +6,24 @@
 #' @return estimate for the standard deviation
 #' @export
 #' @examples
-#' dat <- gen_data(1000, 0.2, 0)
+#' dat <- gen_data(500, 0.2, 0)
 #' tsgauss(dat$d, dat$w, 0)
 #' @references
 #' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 tsgauss <- function(d_vec, w_vec, cutoff, ...)
 {
+  ## input validation
+  stopifnot(is.numeric(d_vec))
+  if (!is.integer(d_vec)) d_vec <- as.integer(d_vec)
+  stopifnot(is.numeric(w_vec))
+
   ## remove NAs, if any
   flg <- !is.na(d_vec) & !is.na(w_vec)
   d_vec <- d_vec[flg]
   w_vec <- w_vec[flg]
   n <- sum(flg)
   stopifnot(n > 1)
+  stopifnot(all(d_vec %in% c(0L, 1L)))
 
   ## ML estimate for mu_x (= mu_w) and sigma_w
   mu_x = mean(w_vec)

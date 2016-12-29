@@ -3,5 +3,5 @@
 NULL
 
 
-#' @importFrom stats optim pnorm rnorm sd
+#' @importFrom stats optim pnorm dnorm rnorm sd integrate
 NULL

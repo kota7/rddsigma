@@ -22,7 +22,7 @@ estimate for the standard deviation
 Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD
 }
 \examples{
-dat <- gen_data(1000, 0.2, 0)
+dat <- gen_data(500, 0.2, 0)
 tsgauss(dat$d, dat$w, 0)
 }
 \references{
