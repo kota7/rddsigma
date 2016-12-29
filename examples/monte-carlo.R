@@ -1,4 +1,4 @@
-library(rddme)
+library(rddsigma)
 library(ggplot2)
 library(dplyr)
 

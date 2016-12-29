@@ -1,4 +1,4 @@
-Package: rddme
+Package: rddsigma
 Type: Package
 Title: Sharp Regression Discontinuity Design with Running Variable Measured with Error 
 Version: 0.1.0

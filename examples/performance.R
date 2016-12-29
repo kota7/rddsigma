@@ -1,4 +1,4 @@
-library(rddme)
+library(rddsigma)
 library(microbenchmark)
 library(ggplot2)
 

@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 tsgauss_lfunc_helper <- function(d, w, cutoff, mu_u, sd_u, sigma) {
-    .Call('rddme_tsgauss_lfunc_helper', PACKAGE = 'rddme', d, w, cutoff, mu_u, sd_u, sigma)
+    .Call('rddsigma_tsgauss_lfunc_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
 }
 
 tsgauss_lfunc_each_helper <- function(d, w, cutoff, mu_u, sd_u, sigma) {
-    .Call('rddme_tsgauss_lfunc_each_helper', PACKAGE = 'rddme', d, w, cutoff, mu_u, sd_u, sigma)
+    .Call('rddsigma_tsgauss_lfunc_each_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
 }
 

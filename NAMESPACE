@@ -3,4 +3,4 @@
 export(gen_data)
 export(tsgauss)
 importFrom(Rcpp,sourceCpp)
-useDynLib(rddme)
+useDynLib(rddsigma)

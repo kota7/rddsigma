@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // tsgauss_lfunc_helper
 double tsgauss_lfunc_helper(IntegerVector d, NumericVector w, double cutoff, NumericVector mu_u, double sd_u, double sigma);
-RcppExport SEXP rddme_tsgauss_lfunc_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {
+RcppExport SEXP rddsigma_tsgauss_lfunc_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // tsgauss_lfunc_each_helper
 NumericVector tsgauss_lfunc_each_helper(IntegerVector d, NumericVector w, double cutoff, NumericVector mu_u, double sd_u, double sigma);
-RcppExport SEXP rddme_tsgauss_lfunc_each_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {
+RcppExport SEXP rddsigma_tsgauss_lfunc_each_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

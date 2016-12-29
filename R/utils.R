@@ -1,3 +1,3 @@
-#' @useDynLib rddme
+#' @useDynLib rddsigma
 #' @importFrom Rcpp sourceCpp
 NULL
