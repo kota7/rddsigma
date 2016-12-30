@@ -8,7 +8,7 @@ library(dplyr)
 set.seed(123)
 
 results <- NULL
-B <- 100
+B <- 50
 N <- 500
 cutoff <- 0
 models <- expand.grid(sigma = c(0.3, 1),
@@ -47,16 +47,24 @@ for (i in 1:nrow(models))
   cat("\n")
 }
 
-ggplot(results, aes(factor(data_id), estimate, color = method)) +
-  theme_bw() + facet_wrap(~param) +
-  geom_boxplot()
+
+# ggplot(results, aes(factor(data_id), estimate, color = method)) +
+#   theme_bw() + facet_wrap(~param) +
+#   geom_boxplot()
 
 ggplot(subset(results, param == "sigma"),
        aes(factor(data_id), estimate, color = method)) +
   theme_bw() +
   geom_boxplot()
 
-group_by(results, param, data_id, method) %>%
-  summarize(sigma = mean(sigma), mean(estimate), sd(estimate), mean(stderr)) %>%
+o <- group_by(results, param, data_id, method) %>%
+  summarize(sigma = mean(sigma),
+            mean_est = mean(estimate),
+            sd_est = sd(estimate),
+            mean_se = mean(stderr)) %>%
   as.data.frame()
+
+ggplot(subset(o, param == "sigma"), aes(sd_est, mean_se, color = method)) +
+  facet_wrap(~ sigma) +
+  geom_point()
 
