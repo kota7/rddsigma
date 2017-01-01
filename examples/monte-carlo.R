@@ -8,8 +8,8 @@ library(dplyr)
 set.seed(123)
 
 results <- NULL
-B <- 50
-N <- 500
+B <- 100
+N <- 1000
 cutoff <- 0
 models <- expand.grid(sigma = c(0.3, 1),
                       x_dist = c("gauss", "gaussmix"),
@@ -27,22 +27,27 @@ for (i in 1:nrow(models))
   {
     cat(sprintf("\r  %4d/%4d", b, B))
     dat <- gen_data(N, sigma, cutoff, u_dist = u_dist, x_dist = x_dist)
-    o <- tsgauss(dat$d, dat$w, cutoff)
-    tmp <- data.frame(
-      data_id = i, sigma = sigma, x_dist = x_dist, method = "two-step gauss",
-      param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
-      stringsAsFactors = FALSE)
-    results <- rbind(results, tmp)
 
-    o <- em_gauss_lap(dat$d, dat$w, cutoff, quiet = TRUE)
-    tmp <- data.frame(
-      data_id = i, sigma = sigma, x_dist = x_dist, method = "EM (gauss/lap)",
-      param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
-      stringsAsFactors = FALSE)
-    results <- rbind(results, tmp)
-
-
-
+    methods <- c(tsgauss = tsgauss,
+                 emgg = em_gauss_gauss,
+                 emgl = em_gauss_lap)
+    cat(": ")
+    for (k in seq_along(methods))
+    {
+      cat(names(methods)[k], ".. ")
+      if (names(methods)[k] == "tsgauss") {
+        o <- methods[[k]](dat$d, dat$w, cutoff)
+      } else {
+        o <- methods[[k]](dat$d, dat$w, cutoff, quiet = TRUE)
+      }
+      tmp <- data.frame(
+        data_id = i, sigma = sigma, x_dist = x_dist,
+        method = names(methods)[k],
+        param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
+        convergence = o$convergence,
+        stringsAsFactors = FALSE)
+      results <- rbind(results, tmp)
+    }
   }
   cat("\n")
 }
@@ -56,6 +61,7 @@ ggplot(subset(results, param == "sigma"),
        aes(factor(data_id), estimate, color = method)) +
   theme_bw() +
   geom_boxplot()
+ggsave("examples/sim-box.pdf", width = 9, height = 3)
 
 o <- group_by(results, param, data_id, method) %>%
   summarize(sigma = mean(sigma),
@@ -63,7 +69,7 @@ o <- group_by(results, param, data_id, method) %>%
             sd_est = sd(estimate),
             mean_se = mean(stderr)) %>%
   as.data.frame()
-
+print(o)
 ggplot(subset(o, param == "sigma"), aes(sd_est, mean_se, color = method)) +
   facet_wrap(~ sigma) +
   geom_point()

@@ -38,8 +38,8 @@ em_gauss_gauss <- function(d_vec, w_vec, cutoff,
 
   ## integrate options
   ## default values
-  integrate_reltol <- 1e-5
-  integrate_abstol <- 1e-5
+  integrate_reltol <- 1e-6
+  integrate_abstol <- 1e-6
   integrate_subdiv <- 100L
   ## overwrite
   if ("rel.tol" %in% names(integrate_options))
