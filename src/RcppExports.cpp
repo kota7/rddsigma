@@ -5,6 +5,25 @@
 
 using namespace Rcpp;
 
+// integrate_test
+void integrate_test();
+RcppExport SEXP rddsigma_integrate_test() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    integrate_test();
+    return R_NilValue;
+END_RCPP
+}
+// integrate_test2
+void integrate_test2(std::string method);
+RcppExport SEXP rddsigma_integrate_test2(SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
+    integrate_test2(method);
+    return R_NilValue;
+END_RCPP
+}
 // tsgauss_lfunc_helper
 double tsgauss_lfunc_helper(IntegerVector d, NumericVector w, double cutoff, NumericVector mu_u, double sd_u, double sigma);
 RcppExport SEXP rddsigma_tsgauss_lfunc_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {
