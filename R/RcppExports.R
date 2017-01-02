@@ -9,6 +9,10 @@ integrate_test2 <- function(method) {
     invisible(.Call('rddsigma_integrate_test2', PACKAGE = 'rddsigma', method))
 }
 
+integrate_test3 <- function() {
+    invisible(.Call('rddsigma_integrate_test3', PACKAGE = 'rddsigma'))
+}
+
 tsgauss_lfunc_helper <- function(d, w, cutoff, mu_u, sd_u, sigma) {
     .Call('rddsigma_tsgauss_lfunc_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
 }

@@ -5,8 +5,9 @@
 \title{Generate Simulation Data for a Sharp RDD with Mismeasured Running Variable}
 \usage{
 gen_data(n, sigma, cutoff, u_dist = c("gauss", "laplace"),
-  x_dist = c("gauss", "gaussmix"), mu_x = 0, sd_x = 1, nmix = 5,
-  mu_min = -5, mu_max = 5, sds = 1, ...)
+  x_dist = c("gauss", "exp", "unif", "gaussmix"), mu_x = 0, sd_x = 1,
+  rate_x = 1, min_x = -sqrt(3), max_x = sqrt(3), nmix = 5,
+  mu_min = -1.5, mu_max = 1.5, sds = 0.25, ...)
 }
 \arguments{
 \item{n}{sample size}
@@ -23,6 +24,10 @@ Either "gauss", "gaussmix" or any function that a generate random sample.}
 
 \item{mu_x, sd_x}{mean and standard deviation of gaussian distribution.
 Used if \code{x_dist} is 'gauss'}
+
+\item{rate_x}{rate parameter used when \code{x_dist} is 'exp'}
+
+\item{min_x, max_x}{min and max parameter used when \code{x_dist} is 'unif'}
 
 \item{nmix, mu_min, mu_max, sds}{parameters used
 when \code{x_dist} is 'gaussmix'.
@@ -46,5 +51,6 @@ Generate Simulation Data for a Sharp RDD with Mismeasured Running Variable
 }
 \examples{
 gen_data(100, 0.2, 0)
+gen_data(100, 0.2, 1, u_dist = "laplace", x_dist = "exp")
 }
 

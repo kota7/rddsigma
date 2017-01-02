@@ -3,16 +3,15 @@ library(ggplot2)
 library(dplyr)
 
 
-## todo: parallelize this?
 
 set.seed(123)
 
 results <- NULL
 B <- 100
-N <- 1000
-cutoff <- 0
+N <- 500
+cutoff <- 1
 models <- expand.grid(sigma = c(0.3, 1),
-                      x_dist = c("gauss", "gaussmix"),
+                      x_dist = c("gauss", "exp", "unif", "gaussmix"),
                       u_dist = c("gauss", "laplace"),
                       stringsAsFactors = FALSE)
 
