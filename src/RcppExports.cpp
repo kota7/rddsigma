@@ -33,6 +33,15 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// integrate_test4
+void integrate_test4();
+RcppExport SEXP rddsigma_integrate_test4() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    integrate_test4();
+    return R_NilValue;
+END_RCPP
+}
 // tsgauss_lfunc_helper
 double tsgauss_lfunc_helper(IntegerVector d, NumericVector w, double cutoff, NumericVector mu_u, double sd_u, double sigma);
 RcppExport SEXP rddsigma_tsgauss_lfunc_helper(SEXP dSEXP, SEXP wSEXP, SEXP cutoffSEXP, SEXP mu_uSEXP, SEXP sd_uSEXP, SEXP sigmaSEXP) {

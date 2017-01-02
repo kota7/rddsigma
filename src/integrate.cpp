@@ -185,41 +185,61 @@ double IntegrateRomberg(std::function<double(double)> &func,
                         double a, double b, double f_a, double f_b,
                         double tol, int max_depth)
 {
-  double mid = 0.5*(a+b);
-  return IntegrateRomberg(func, a, b, mid, f_a, f_b, func(mid),
+  double m2 = 0.5*(a+b);
+  double m1 = 0.5*(a+m2);
+  double m3 = 0.5*(m2+b);
+  return IntegrateRomberg(func, a, b, m1, m2, m3,
+                          f_a, f_b, func(m1), func(m2), func(m3),
                           tol, max_depth);
 }
 
 double IntegrateRomberg(std::function<double(double)> &func,
-                        double a, double b, double mid,
-                        double f_a, double f_b, double f_mid,
+                        double a, double b, double m1, double m2, double m3,
+                        double f_a, double f_b,
+                        double f_m1, double f_m2, double f_m3,
                         double tol, int depth_remained)
 {
-  double m1 = 0.5*(a+mid);
-  double m2 = 0.5*(mid+b);
-  double f_m1 = func(m1);
-  double f_m2 = func(m2);
+  double mm1 = 0.5*(a+m1);
+  double mm2 = 0.5*(m1+m2);
+  double mm3 = 0.5*(m2+m3);
+  double mm4 = 0.5*(m3+b);
+  double f_mm1 = func(mm1);
+  double f_mm2 = func(mm2);
+  double f_mm3 = func(mm3);
+  double f_mm4 = func(mm4);
+
 
   // stop if nan or inf is observed
-  if (isnan(f_a) || isnan(f_b) || isnan(f_mid) || isnan(f_m1) || isnan(f_m2))
+  if (isnan(f_a) || isnan(f_b) || isnan(f_m1) || isnan(f_m2) || isnan(f_m3) ||
+      isnan(f_mm1) || isnan(f_mm2) || isnan(f_mm3) || isnan(f_mm4))
     stop("point value is nan");
-  if (isinf(f_a) || isinf(f_b) || isinf(f_mid) || isinf(f_m1) || isnan(f_m2))
+  if (isinf(f_a) || isinf(f_b) || isinf(f_m1) || isinf(f_m2) || isinf(f_m3) ||
+      isinf(f_mm1) || isinf(f_mm2) || isinf(f_mm3) || isinf(f_mm4))
     stop("point value is inf or -inf");
 
   double I1 = 0.5 * (b-a) * (f_a + f_b);
-  double I2 = 0.5 * 0.5*(b-a) * (f_a + 2.0*f_mid + f_b);
-  double I3 = 0.5 * 0.25*(b-a) * (f_a + 2.0*f_m1 + 2.0*f_mid + 2.0*f_m2 + f_b);
+  double I2 = 0.5*I1 + 0.5*(b-a)*f_m2;
+  double I3 = 0.5*I2 + 0.25*(b-a)*(f_m1 + f_m3);
+  double I4 = 0.5*I3 + 0.125*(b-a)*(f_mm1 + f_mm2 + f_mm3 + f_mm4);
+  // double I2 = 0.5 * 0.5*(b-a) * (f_a + 2.0*f_m2 + f_b);
+  // double I3 = 0.5 * 0.25*(b-a) * (f_a + 2.0*f_m1 + 2.0*f_m2 + 2.0*f_m3 + f_b);
 
-  double I4 = I2 + (I2 - I1)/3.0;
-  double I5 = I3 + (I3 - I2)/3.0;
+  double I5 = I2 + (I2 - I1)/3.0;
+  double I6 = I3 + (I3 - I2)/3.0;
+  double I7 = I4 + (I4 - I3)/3.0;
 
-  if (fabs(I5-I4) < tol*(fabs(I4) + tol)) return I5;
+  double I8 = I6 + (I6 - I5)/15.0;
+  double I9 = I7 + (I7 - I6)/15.0;
+
+  if (fabs(I9-I8) < tol*(fabs(I8) + tol)) return I9;
 
   depth_remained--;
   if (depth_remained < 0) stop("maximum recursion depth exceeded");
-  return IntegrateRomberg(func, a, mid, m1, f_a, f_mid, f_m1,
+  return IntegrateRomberg(func, a, m2, mm1, m1, mm2,
+                          f_a, f_m2, f_mm1, f_m1, f_mm2,
                           tol, depth_remained) +
-    IntegrateRomberg(func, mid, b, m2, f_mid, f_b, f_m2,
+    IntegrateRomberg(func, m2, b, mm3, m3, mm4,
+                     f_m2, f_b, f_mm3, f_m3, f_mm4,
                      tol, depth_remained);
 }
 
@@ -304,23 +324,47 @@ void integrate_test3()
   std::function<double(double)> f = [](double x) -> double {
     return 1/x; };
   Rcout.precision(10);
-  Rcout << "integrate 1/x over (1, 1e+10)\n" <<
+  Rcout << "integrate 1/x over (1, 1e+10)\n";
+  Rcout <<
     "  trapezoid: " << Integrate(f, 1, 1e+10, "trapezoid", 1e-5, 100) << "\n" <<
     "  simpson:   " << Integrate(f, 1, 1e+10, "simpson", 1e-5, 100) << "\n" <<
     "  simpson2:  " << Integrate(f, 1, 1e+10, "simpson2", 1e-5, 100) << "\n" <<
     "  romberg:   " << Integrate(f, 1, 1e+10, "romberg", 1e-5, 100) << "\n";
-  Rcout << "integrate 1/x over (1, 1e+20)\n" <<
+  Rcout << "integrate 1/x over (1, 1e+20)\n";
+  Rcout <<
     "  trapezoid: " << Integrate(f, 1, 1e+20, "trapezoid", 1e-5, 100) << "\n" <<
     "  simpson:   " << Integrate(f, 1, 1e+20, "simpson", 1e-5, 100) << "\n" <<
     "  simpson2:  " << Integrate(f, 1, 1e+20, "simpson2", 1e-5, 100) << "\n" <<
     "  romberg:   " << Integrate(f, 1, 1e+20, "romberg", 1e-5, 100) << "\n";
-  Rcout << "integrate 1/x over (1, +inf)\n" <<
+  Rcout << "integrate 1/x over (1, +inf)\n";
+  Rcout <<
     "  trapezoid: " << Integrate(f, 1, INFINITY, "trapezoid", 1e-5, 100) << "\n" <<
     "  simpson:   " << Integrate(f, 1, INFINITY, "simpson", 1e-5, 100) << "\n" <<
     "  simpson2:  " << Integrate(f, 1, INFINITY, "simpson2", 1e-5, 100) << "\n" <<
     "  romberg:   " << Integrate(f, 1, INFINITY, "romberg", 1e-5, 100) << "\n";
 }
 
+
+// [[Rcpp::export]]
+void integrate_test4()
+{
+  // Are simpson and romberg gets same result?
+  int max_depth = 100;
+  double tol = 0.1;
+  std::function<double(double)> f1 = [](double x) -> double { return 1/x; };
+  Rcout.precision(12);
+  Rcout << "integrate 1/x over (3.1, 3.9)\n" <<
+    "  true value = " << log(3.9) - log(3.1) << "\n\n";
+  for (int i = 0; i < 8; i++)
+  {
+     Rcout << " tol = " << tol << "\n" <<
+      "  trapezoid  = " << Integrate(f1, 3.1, 3.9, "trapezoid", tol, max_depth) << "\n" <<
+      "  simpson    = " << Integrate(f1, 3.1, 3.9, "simpson", tol, max_depth) << "\n" <<
+      "  simpson2   = " << Integrate(f1, 3.1, 3.9, "simpson2", tol, max_depth) << "\n" <<
+      "  romberg    = " << Integrate(f1, 3.1, 3.9, "romberg", tol, max_depth) << "\n\n";
+    tol /= 10;
+  }
+}
 
 
 /*** R
@@ -337,4 +381,6 @@ summary(m)
 ggplot(as.data.frame(m), aes(expr, time)) + geom_boxplot() + scale_y_log10()
 
 rddsigma:::integrate_test3()
+rddsigma:::integrate_test4()
+
 */
