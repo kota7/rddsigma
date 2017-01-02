@@ -38,7 +38,6 @@ double Integrate(std::function<double(double)> &func,
 
     return Integrate(new_func, 0.0, 1.0, new_func(0.0), 0.0,
                      method, tol, max_depth);
-    //return Integrate(new_func, 0.0, 1.0, method, tol, max_depth);
   }
 
   return Integrate(func, a, b, func(a), func(b), method, tol, max_depth);
@@ -221,8 +220,6 @@ double IntegrateRomberg(std::function<double(double)> &func,
   double I2 = 0.5*I1 + 0.5*(b-a)*f_m2;
   double I3 = 0.5*I2 + 0.25*(b-a)*(f_m1 + f_m3);
   double I4 = 0.5*I3 + 0.125*(b-a)*(f_mm1 + f_mm2 + f_mm3 + f_mm4);
-  // double I2 = 0.5 * 0.5*(b-a) * (f_a + 2.0*f_m2 + f_b);
-  // double I3 = 0.5 * 0.25*(b-a) * (f_a + 2.0*f_m1 + 2.0*f_m2 + 2.0*f_m3 + f_b);
 
   double I5 = I2 + (I2 - I1)/3.0;
   double I6 = I3 + (I3 - I2)/3.0;
@@ -307,13 +304,13 @@ void integrate_test()
 }
 
 // [[Rcpp::export]]
-void integrate_test2(std::string method)
+void integrate_test2(std::string method, double tol)
 {
   // compute (-inf, inf) integral for standard normal pdf (the ans is 1.0)
   // this is for comparing the speed
   std::function<double(double)> f = [](double x) -> double {
     return exp(-0.5*x*x)/sqrt(2*3.141592653589793); };
-  Integrate(f, -INFINITY, INFINITY, method, 1e-5, 100);
+  Integrate(f, -INFINITY, INFINITY, method, tol, 100);
 }
 
 // [[Rcpp::export]]
@@ -371,14 +368,26 @@ void integrate_test4()
 rddsigma:::integrate_test()
 library(microbenchmark)
 library(ggplot2)
+tol <- 1e-5
 m <- microbenchmark(
-  trapezoid = rddsigma:::integrate_test2("trapezoid"),
-  simpson   = rddsigma:::integrate_test2("simpson"),
-  simpson2  = rddsigma:::integrate_test2("simpson2"),
-  romberg   = rddsigma:::integrate_test2("romberg")
+  trapezoid = rddsigma:::integrate_test2("trapezoid", tol),
+  simpson   = rddsigma:::integrate_test2("simpson", tol),
+  simpson2  = rddsigma:::integrate_test2("simpson2", tol),
+  romberg   = rddsigma:::integrate_test2("romberg", tol)
 )
-summary(m)
+print(m)
 ggplot(as.data.frame(m), aes(expr, time)) + geom_boxplot() + scale_y_log10()
+
+m2 <- microbenchmark(
+  `1e-4` = rddsigma:::integrate_test2("romberg", 0.1^4),
+  `1e-5` = rddsigma:::integrate_test2("romberg", 0.1^5),
+  `1e-6` = rddsigma:::integrate_test2("romberg", 0.1^6),
+  `1e-7` = rddsigma:::integrate_test2("romberg", 0.1^7),
+  `1e-8` = rddsigma:::integrate_test2("romberg", 0.1^8)
+)
+print(m2)
+ggplot(as.data.frame(m2), aes(expr, time)) + geom_boxplot() + scale_y_log10()
+
 
 rddsigma:::integrate_test3()
 rddsigma:::integrate_test4()

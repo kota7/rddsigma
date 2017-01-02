@@ -53,7 +53,7 @@ double Integrate(std::function<double(double)> &func,
                  std::string method, double tol, int max_depth);
 // this version requires function values at the both end.
 // this is designed for computing improper integrals
-// for which func(a) or func(b) cannot be evaluated properly
+// for which func(a) or func(b) may not be evaluated properly
 double Integrate(std::function<double(double)> &func,
                  double a, double b, double f_a, double f_b,
                  std::string method, double tol, int max_depth);
@@ -64,6 +64,8 @@ double Integrate(std::function<double(double)> &func,
 
 
 // adaptive integration by trapezoid method
+// note: the first version is deleted since it has the same signature as
+// the recursive version
 // double IntegrateTrapezoid(std::function<double(double)> &func,
 //                           double a, double b, double f_a, double f_b,
 //                           double tol, int max_depth);

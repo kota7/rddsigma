@@ -5,8 +5,8 @@ integrate_test <- function() {
     invisible(.Call('rddsigma_integrate_test', PACKAGE = 'rddsigma'))
 }
 
-integrate_test2 <- function(method) {
-    invisible(.Call('rddsigma_integrate_test2', PACKAGE = 'rddsigma', method))
+integrate_test2 <- function(method, tol) {
+    invisible(.Call('rddsigma_integrate_test2', PACKAGE = 'rddsigma', method, tol))
 }
 
 integrate_test3 <- function() {

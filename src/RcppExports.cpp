@@ -15,12 +15,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // integrate_test2
-void integrate_test2(std::string method);
-RcppExport SEXP rddsigma_integrate_test2(SEXP methodSEXP) {
+void integrate_test2(std::string method, double tol);
+RcppExport SEXP rddsigma_integrate_test2(SEXP methodSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
-    integrate_test2(method);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    integrate_test2(method, tol);
     return R_NilValue;
 END_RCPP
 }
