@@ -1,5 +1,6 @@
 #include <Rcpp.h>
-#include "integrate.h"
+#include "integral.h"
+
 using namespace Rcpp;
 
 

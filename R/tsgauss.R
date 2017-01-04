@@ -120,6 +120,7 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
                     sd_x = sqrt(sd_w^2 - o$par^2), sd_w = sd_w),
        stderr = sqrt(diag(avar)/n),
        avar = avar,
+       nobs = n,
        convergence = o$convergence)
 }
 

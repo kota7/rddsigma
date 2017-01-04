@@ -5,6 +5,7 @@
 #include <functional>
 #include <cmath>
 #include <string>
+
 using namespace Rcpp;
 
 

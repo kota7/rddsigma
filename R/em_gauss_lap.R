@@ -153,8 +153,8 @@ em_gauss_lap <- function(d_vec, w_vec, cutoff,
   {
     inc <- update_value()
     if (!quiet) {
-      cat(sprintf("iter %d: sigma = %.3f, sd_x = %.3f, increment = %1.3e\n",
-                  i, sigma, sd_x, inc, "\n"))
+      cat(sprintf("iter %d: sigma = %.3f, sd_x = %.3f, value = %.3f, increment = %1.1e\n",
+                  i, sigma, sd_x, cur_value, inc, "\n"))
     }
     if (abs(inc) < reltol*(abs(cur_value) + reltol)) {
       convergence <- 0L
