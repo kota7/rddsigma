@@ -1,4 +1,5 @@
 #' EM Algorithm Estimator for Gaussian-Gaussian Model
+#' @description old version. kept for debugging.
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
@@ -7,12 +8,13 @@
 #' @param integrate_options controls to pass to \code{\link{integrate}}
 #' @param quiet if false, progress is reported
 #' @param ... currently not used
-#' @export
+#' @return List
 #' @examples
 #' \dontrun{
 #' dat <- gen_data(500, 0.2, 0)
 #' em_gauss_gauss(dat$d, dat$w, 0)
 #' }
+#' @keywords internal
 em_gauss_gauss <- function(d_vec, w_vec, cutoff,
                            reltol = 1e-6, maxit = 200L,
                            integrate_options = list(),
@@ -153,8 +155,9 @@ em_gauss_gauss <- function(d_vec, w_vec, cutoff,
   {
     inc <- update_value()
     if (!quiet) {
-      cat(sprintf("iter %d: sigma = %.3f, sd_x = %.3f, increment = %1.3e\n",
-                  i, sigma, sd_x, inc, "\n"))
+      cat(sprintf(
+        "iter %d: sigma = %.3f, sd_x = %.3f, value = %.3f, increment = %1.3e\n",
+        i, sigma, sd_x, cur_value, inc, "\n"))
     }
     if (abs(inc) < reltol*(abs(cur_value) + reltol)) {
       convergence <- 0L

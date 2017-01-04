@@ -16,23 +16,38 @@ emparam(d_vec, w_vec, cutoff, x_dist = c("gauss"), u_dist = c("gauss",
 
 \item{cutoff}{threshold value for assignment}
 
+\item{x_dist, u_dist}{distribution of \eqn{x} and \eqn{u}}
+
 \item{reltol}{relative tolerance requied}
 
 \item{maxit}{maximum number of iteration}
 
-\item{integ_method, integ_reltol, integ_depth}{control parameters for numerical integration}
+\item{integ_method}{numerical integration method}
+
+\item{integ_reltol}{relative tolerance for numerical integration}
+
+\item{integ_depth}{maximum recursion depth for numerical integration}
 
 \item{verbose}{if true, progress is reported}
 
 \item{...}{currently not used}
 }
+\value{
+object of \code{rddsigma} class
+}
 \description{
-EM Algorithm Estimator for Parametric Model
+Estimate the standard deviation of measurement error in the
+running variable of sharp RDD.  This estimator is constructed under the
+assumption that true running variable and measurement error follow
+known parametric distribution.
 }
 \examples{
 \dontrun{
 dat <- gen_data(500, 0.2, 0)
 emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 }
+}
+\references{
+Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 }
 

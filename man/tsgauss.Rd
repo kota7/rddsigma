@@ -2,7 +2,7 @@
 % Please edit documentation in R/tsgauss.R
 \name{tsgauss}
 \alias{tsgauss}
-\title{Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD}
+\title{Two Step Gaussian Estimator}
 \usage{
 tsgauss(d_vec, w_vec, cutoff, ...)
 }
@@ -16,10 +16,13 @@ tsgauss(d_vec, w_vec, cutoff, ...)
 \item{...}{additional controls for \code{optim}}
 }
 \value{
-estimate for the standard deviation
+object of \code{rddsigma} class
 }
 \description{
-Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD
+Estimate the standard deviation of measurement error in the
+running variable of sharp RDD.  This estimator is constructed under
+the assumption that true running variable and measurement error
+follow the Gaussian distribution.
 }
 \examples{
 dat <- gen_data(500, 0.2, 0)

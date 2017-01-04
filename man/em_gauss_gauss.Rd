@@ -24,8 +24,11 @@ em_gauss_gauss(d_vec, w_vec, cutoff, reltol = 1e-06, maxit = 200L,
 
 \item{...}{currently not used}
 }
+\value{
+List
+}
 \description{
-EM Algorithm Estimator for Gaussian-Gaussian Model
+old version. kept for debugging.
 }
 \examples{
 \dontrun{
@@ -33,4 +36,5 @@ dat <- gen_data(500, 0.2, 0)
 em_gauss_gauss(dat$d, dat$w, 0)
 }
 }
+\keyword{internal}
 

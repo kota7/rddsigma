@@ -25,7 +25,7 @@ em_gauss_lap(d_vec, w_vec, cutoff, reltol = 1e-06, maxit = 200L,
 \item{...}{currently not used}
 }
 \description{
-EM Algorithm Estimator for Gaussian-Laplace Model
+old version. kept for debugging.
 }
 \examples{
 \dontrun{
@@ -33,4 +33,5 @@ dat <- gen_data(500, 0.2, 0)
 em_gauss_lap(dat$d, dat$w, 0)
 }
 }
+\keyword{internal}
 

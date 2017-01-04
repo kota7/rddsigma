@@ -3,5 +3,5 @@
 NULL
 
 
-#' @importFrom stats optim pnorm dnorm rnorm rexp runif sd integrate
+#' @importFrom stats optim pnorm dnorm rnorm rexp runif sd integrate printCoefmat
 NULL

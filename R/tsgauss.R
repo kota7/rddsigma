@@ -1,9 +1,13 @@
-#' Two Step Gaussian Model for Measurement Error Variance for a Sharp RDD
+#' Two Step Gaussian Estimator
+#' @description Estimate the standard deviation of measurement error in the
+#' running variable of sharp RDD.  This estimator is constructed under
+#' the assumption that true running variable and measurement error
+#' follow the Gaussian distribution.
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
 #' @param ... additional controls for \code{optim}
-#' @return estimate for the standard deviation
+#' @return object of \code{rddsigma} class
 #' @export
 #' @examples
 #' dat <- gen_data(500, 0.2, 0)
@@ -116,12 +120,13 @@ tsgauss <- function(d_vec, w_vec, cutoff, ...)
              control = list(fnscale = -1, ...))
   avar <- get_avar(o$par)
 
-  list(estimate = c(sigma = o$par, mu_x = mu_x,
-                    sd_x = sqrt(sd_w^2 - o$par^2), sd_w = sd_w),
-       stderr = sqrt(diag(avar)/n),
-       avar = avar,
-       nobs = n,
-       convergence = o$convergence)
+  out <- list(estimate = c(sigma = o$par, mu_x = mu_x,
+                           sd_x = sqrt(sd_w^2 - o$par^2), sd_w = sd_w),
+              stderr = sqrt(diag(avar)/n), avar = avar, nobs = n,
+              convergence = o$convergence,
+              model = "tsgauss", x_dist = "gauss", u_dist = "gauss")
+  class(out) <- "rddsigma"
+  out
 }
 
 

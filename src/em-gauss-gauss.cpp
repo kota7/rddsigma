@@ -7,11 +7,11 @@
 using namespace Rcpp;
 
 
-class EmGaussLapModel
+class EmGaussGaussModel
 {
 
-private:
-  // data
+  private:
+    // data
   std::vector<int> d_vec;
   std::vector<double> w_vec;
   int nobs;
@@ -43,13 +43,14 @@ private:
   double fx(double x)
   { return R::dnorm4(x, mu_x, sd_x, 0); }
   double fu(double x, int i)
-  { return exp(-sqrt(2) / sigma * fabs(w_vec[i] - x)) / sigma / sqrt(2.0); }
+  { return R::dnorm4(w_vec[i] - x, 0, sigma, 0); }
 
 
 
-  // returns increment
   double UpdateValueAndWeights()
   {
+    // update value and weights, then
+    // returns increment
     double new_value = 0;
     for (int i = 0; i < nobs; i++)
     {
@@ -83,7 +84,7 @@ private:
     for (int i = 0; i < nobs; i++)
     {
       func = [this,i] (double x) -> double {
-        return fx(x) * fu(x, i) / weights[i] * fabs(w_vec[i] - x); };
+        return fx(x) * fu(x, i) / weights[i] * pow(w_vec[i] - x, 2); };
       double lower;
       double upper;
       if (d_vec[i] == 1) {
@@ -96,7 +97,7 @@ private:
       new_sigma += Integrate(func, lower, upper,
                              integ_method, integ_tol, integ_depth);
     }
-    new_sigma *= (sqrt(2.0) / (double)nobs);
+    new_sigma = sqrt(new_sigma / (double)nobs);
 
     // update paramters for x
     double new_sdx = 0;
@@ -114,7 +115,7 @@ private:
         upper = cutoff;
       }
       new_sdx += Integrate(func, lower, upper,
-                             integ_method, integ_tol, integ_depth);
+                           integ_method, integ_tol, integ_depth);
     }
     new_sdx = sqrt(new_sdx / (double)nobs);
 
@@ -157,11 +158,11 @@ private:
         upper = cutoff;
       }
       J21(i, 0) = Integrate(func, lower, upper,
-          integ_method, integ_tol, integ_depth) / weights[i];
+                            integ_method, integ_tol, integ_depth) / weights[i];
 
       // computing L2 on sigma
       func = [this,i] (double x) -> double {
-        return (-1.0/sigma + sqrt(2)*fabs(w_vec[i]-x)/pow(sigma, 2)) *
+        return (-1.0/sigma + pow(w_vec[i]-x, 2)/pow(sigma, 3)) *
           fx(x) * fu(x, i); };
       if (d_vec[i] == 1) {
         lower = cutoff;
@@ -171,7 +172,7 @@ private:
         upper = cutoff;
       }
       J22(i, 0) = Integrate(func, lower, upper,
-          integ_method, integ_tol, integ_depth) / weights[i];
+                            integ_method, integ_tol, integ_depth) / weights[i];
 
       // computing L2 on sd_x
       func = [this,i] (double x) -> double {
@@ -185,7 +186,7 @@ private:
         upper = cutoff;
       }
       J22(i, 1) = Integrate(func, lower, upper,
-          integ_method, integ_tol, integ_depth) / weights[i];
+                            integ_method, integ_tol, integ_depth) / weights[i];
     }
     R2 = J22.t() * J22 / nobs;
     R3 = J21.t() * J22 / nobs;
@@ -196,7 +197,7 @@ private:
     arma::mat tmp = R2.i();
     arma::mat o12 = o11 * (R4-R3) * tmp;
     arma::mat o22 = tmp + tmp *
-       (R3.t() * o11 * R3 - R4.t() * o11 * R3 - R3.t() * o11 * R4) * tmp;
+      (R3.t() * o11 * R3 - R4.t() * o11 * R3 - R3.t() * o11 * R4) * tmp;
     arma::mat o21 = o12.t();
 
     arma::mat out = arma::join_vert(arma::join_horiz(o11, o12),
@@ -215,12 +216,12 @@ private:
   }
 
 
-public:
+  public:
 
-  EmGaussLapModel(
-    const std::vector<int> &d_vec_, const std::vector<double> &w_vec_,
-    double cutoff_, double tol_, int maxit_,
-    std::string integ_method_, double integ_tol_, int integ_depth_)
+    EmGaussGaussModel(
+      const std::vector<int> &d_vec_, const std::vector<double> &w_vec_,
+      double cutoff_, double tol_, int maxit_,
+      std::string integ_method_, double integ_tol_, int integ_depth_)
   {
     d_vec = d_vec_;
     w_vec = w_vec_;
@@ -263,7 +264,7 @@ public:
 
 
     convergence = -1;
-  }
+    }
 
   void Estimate(bool verbose)
   {
@@ -308,14 +309,14 @@ public:
 
 
 // [[Rcpp::export]]
-List em_gauss_lap_helper(
-    std::vector<int> d_vec, std::vector<double> w_vec, double cutoff,
-    double tol, int maxit,
-    std::string integ_method, double integ_tol, int integ_depth,
-    bool verbose)
+List em_gauss_gauss_helper(
+  std::vector<int> d_vec, std::vector<double> w_vec, double cutoff,
+  double tol, int maxit,
+  std::string integ_method, double integ_tol, int integ_depth,
+  bool verbose)
 {
-  EmGaussLapModel model(d_vec, w_vec, cutoff, tol, maxit,
-                        integ_method, integ_tol, integ_depth);
+  EmGaussGaussModel model(d_vec, w_vec, cutoff, tol, maxit,
+                          integ_method, integ_tol, integ_depth);
   model.Estimate(verbose);
   return model.CompileOutput();
 }
@@ -324,9 +325,8 @@ List em_gauss_lap_helper(
 /*** R
 library(rddsigma)
 dat <- gen_data(500, 0.3, 1)
-rddsigma:::em_gauss_lap_helper(dat$d, dat$w, 1,
+rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1,
                                1e-6, 1000, "romberg", 1e-6, 100, TRUE)
-rddsigma:::em_gauss_lap(dat$d, dat$w, 1, reltol = 1e-6,
+rddsigma:::em_gauss_gauss(dat$d, dat$w, 1, reltol = 1e-6,
              integrate_options = list(rel.tol = 1e-6), quiet = FALSE)
-
 */

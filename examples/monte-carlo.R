@@ -27,21 +27,23 @@ for (i in 1:nrow(models))
     cat(sprintf("\r  %4d/%4d", b, B))
     dat <- gen_data(N, sigma, cutoff, u_dist = u_dist, x_dist = x_dist)
 
-    methods <- c(tsgauss = tsgauss,
-                 emgg = em_gauss_gauss,
-                 emgl = em_gauss_lap)
+    methods <- c("tsgauss", "emgg", "emgl")
     cat(": ")
     for (k in seq_along(methods))
     {
-      cat(names(methods)[k], ".. ")
-      if (names(methods)[k] == "tsgauss") {
-        o <- methods[[k]](dat$d, dat$w, cutoff)
-      } else {
-        o <- methods[[k]](dat$d, dat$w, cutoff, quiet = TRUE)
+      cat(methods[k], ".. ")
+      if (methods[k] == "tsgauss") {
+        o <- tsgauss(dat$d, dat$w, cutoff)
+      } else if (methods[k] == "emgg") {
+        o <- emparam(dat$d, dat$w, cutoff,
+                     x_dist = "gauss", u_dist = "gauss", verbose = FALSE)
+      } else if (methods[k] == "emgl") {
+        o <- emparam(dat$d, dat$w, cutoff,
+                     x_dist = "gauss", u_dist = "lap", verbose = FALSE)
       }
       tmp <- data.frame(
         data_id = i, sigma = sigma, x_dist = x_dist,
-        method = names(methods)[k],
+        method = methods[k],
         param = names(o$estimate), estimate = o$estimate, stderr = o$stderr,
         convergence = o$convergence,
         stringsAsFactors = FALSE)

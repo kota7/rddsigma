@@ -1,19 +1,28 @@
 #' EM Algorithm Estimator for Parametric Model
+#' @description Estimate the standard deviation of measurement error in the
+#' running variable of sharp RDD.  This estimator is constructed under the
+#' assumption that true running variable and measurement error follow
+#' known parametric distribution.
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
+#' @param x_dist,u_dist distribution of \eqn{x} and \eqn{u}
 #' @param reltol relative tolerance requied
 #' @param maxit maximum number of iteration
-#' @param integ_method,integ_reltol,integ_depth
-#' control parameters for numerical integration
+#' @param integ_method numerical integration method
+#' @param integ_reltol relative tolerance for numerical integration
+#' @param integ_depth maximum recursion depth for numerical integration
 #' @param verbose if true, progress is reported
 #' @param ... currently not used
+#' @return object of \code{rddsigma} class
 #' @export
 #' @examples
 #' \dontrun{
 #' dat <- gen_data(500, 0.2, 0)
 #' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 #' }
+#' @references
+#' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 emparam <- function(
   d_vec, w_vec, cutoff,
   x_dist = c("gauss"), u_dist = c("gauss", "lap"),
@@ -87,8 +96,10 @@ emparam <- function(
 
   if (x_dist == "gauss") {
     if (u_dist == "gauss") {
-      cat("to be added!\n")
-      return()
+      out <- em_gauss_gauss_helper(
+        d_vec, w_vec, cutoff,
+        reltol, maxit,
+        integ_method, integ_reltol, integ_depth, verbose)
     } else if (u_dist == "lap") {
       out <- em_gauss_lap_helper(
         d_vec, w_vec, cutoff,
@@ -101,5 +112,9 @@ emparam <- function(
     stop("unsupported x_dist: ", x_dist)
   }
 
-  return(out)
+  out$model <- "emparam"
+  out$x_dist <- x_dist
+  out$u_dist <- u_dist
+  class(out) <- "rddsigma"
+  out
 }
