@@ -10,7 +10,7 @@ results <- NULL
 B <- 100
 N <- 500
 cutoff <- 1
-models <- expand.grid(sigma = c(0.3, 1),
+models <- expand.grid(sigma = c(0.1, 0.5, 1),
                       x_dist = c("gauss", "exp", "unif", "gaussmix"),
                       u_dist = c("gauss", "laplace"),
                       stringsAsFactors = FALSE)
@@ -58,7 +58,7 @@ for (i in 1:nrow(models))
 #   theme_bw() + facet_wrap(~param) +
 #   geom_boxplot()
 
-ggplot(subset(results, param == "sigma"),
+ggplot(subset(results, param == "sigma" & data_id != 3 & data_id != 11),
        aes(factor(data_id), estimate, color = method)) +
   theme_bw() +
   geom_boxplot()
