@@ -32,7 +32,7 @@ private:
 
   // and asymptotic variance and standard errors
   NumericMatrix avar;
-  NumericVector stderr;
+  NumericVector stderror;
 
   // value and weights, and convergence indicator
   double cur_value;
@@ -43,7 +43,7 @@ private:
   double fx(double x)
   { return R::dnorm4(x, mu_x, sd_x, 0); }
   double fu(double x, int i)
-  { return exp(-sqrt(2) / sigma * fabs(w_vec[i] - x)) / sigma / sqrt(2.0); }
+  { return exp(-std::sqrt(2) / sigma * std::fabs(w_vec[i] - x)) / sigma / std::sqrt(2.0); }
 
 
 
@@ -83,7 +83,7 @@ private:
     for (int i = 0; i < nobs; i++)
     {
       func = [this,i] (double x) -> double {
-        return fx(x) * fu(x, i) / weights[i] * fabs(w_vec[i] - x); };
+        return fx(x) * fu(x, i) / weights[i] * std::fabs(w_vec[i] - x); };
       double lower;
       double upper;
       if (d_vec[i] == 1) {
@@ -96,14 +96,14 @@ private:
       new_sigma += Integrate(func, lower, upper,
                              integ_method, integ_tol, integ_depth);
     }
-    new_sigma *= (sqrt(2.0) / (double)nobs);
+    new_sigma *= (std::sqrt(2.0) / (double)nobs);
 
     // update paramters for x
     double new_sdx = 0;
     for (int i = 0; i < nobs; i++)
     {
       func = [this,i] (double x) -> double {
-        return fx(x) * fu(x, i) / weights[i] * pow(x - mu_x, 2); };
+        return fx(x) * fu(x, i) / weights[i] * std::pow(x - mu_x, 2); };
       double lower;
       double upper;
       if (d_vec[i] == 1) {
@@ -116,7 +116,7 @@ private:
       new_sdx += Integrate(func, lower, upper,
                              integ_method, integ_tol, integ_depth);
     }
-    new_sdx = sqrt(new_sdx / (double)nobs);
+    new_sdx = std::sqrt(new_sdx / (double)nobs);
 
     sigma = new_sigma;
     sd_x = new_sdx;
@@ -139,7 +139,7 @@ private:
     for (int i = 0; i < nobs; i++)
     {
       // have analytic solution for J11, derived from gaussian pdf
-      J11(i, 0) = (w_vec[i] - mu_x)/pow(sd_w, 2);
+      J11(i, 0) = (w_vec[i] - mu_x)/std::pow(sd_w, 2);
 
       // J21 and J22 requires numerical integration
       std::function<double(double)> func;
@@ -148,7 +148,7 @@ private:
 
       // computing L2 on mu_x
       func = [this,i] (double x) -> double {
-        return (x - mu_x) / pow(sd_x, 2) * fx(x) * fu(x, i); };
+        return (x - mu_x) / std::pow(sd_x, 2) * fx(x) * fu(x, i); };
       if (d_vec[i] == 1) {
         lower = cutoff;
         upper = INFINITY;
@@ -161,7 +161,7 @@ private:
 
       // computing L2 on sigma
       func = [this,i] (double x) -> double {
-        return (-1.0/sigma + sqrt(2)*fabs(w_vec[i]-x)/pow(sigma, 2)) *
+        return (-1.0/sigma + std::sqrt(2)*std::fabs(w_vec[i]-x)/std::pow(sigma, 2)) *
           fx(x) * fu(x, i); };
       if (d_vec[i] == 1) {
         lower = cutoff;
@@ -175,7 +175,7 @@ private:
 
       // computing L2 on sd_x
       func = [this,i] (double x) -> double {
-        return (-1.0/sd_x + pow(x - mu_x, 2)/pow(sd_x, 3)) *
+        return (-1.0/sd_x + std::pow(x - mu_x, 2)/std::pow(sd_x, 3)) *
           fx(x) * fu(x, i); };
       if (d_vec[i] == 1) {
         lower = cutoff;
@@ -210,7 +210,7 @@ private:
 
     // update standard errors
     for (int i = 0; i < 3; i++)
-      stderr[i] = sqrt(avar(i,i)/nobs);
+      stderror[i] = std::sqrt(avar(i,i)/nobs);
 
   }
 
@@ -244,15 +244,15 @@ public:
     }
     mu_x /= (double) nobs;
     double s2 = w2 / (double) nobs - mu_x*mu_x; // (sigma_w)^2
-    sd_x = sqrt(s2 * 0.75);
-    sigma = sqrt(s2 * 0.25);
-    sd_w = sqrt(s2);
+    sd_x = std::sqrt(s2 * 0.75);
+    sigma = std::sqrt(s2 * 0.25);
+    sd_w = std::sqrt(s2);
 
     // initialize avar and se
     avar = NumericMatrix(3, 3);
     rownames(avar) = CharacterVector::create("sigma", "mu_x", "sd_x");
     colnames(avar) = CharacterVector::create("sigma", "mu_x", "sd_x");
-    stderr = NumericVector::create(
+    stderror = NumericVector::create(
       Named("sigma") = 0, Named("mu_x") = 0, Named("sd_x") = 0);
 
 
@@ -278,7 +278,7 @@ public:
       }
       UpdateParameters();
       double increment = UpdateValueAndWeights();
-      if (fabs(increment) < tol*(fabs(cur_value - increment) + tol)) {
+      if (std::fabs(increment) < tol*(std::fabs(cur_value - increment) + tol)) {
         convergence = 0;
         if (verbose) Rcout << "CONVERGED!\n";
         break;
@@ -296,7 +296,7 @@ public:
 
     List out = List::create(
       Named("estimate") = estimate,
-      Named("stderr") = stderr,
+      Named("stderr") = stderror,
       Named("avar") = avar,
       Named("nobs") = nobs,
       Named("convergence") = convergence

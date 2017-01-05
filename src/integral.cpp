@@ -9,14 +9,14 @@ double Integrate(std::function<double(double)> &func,
                  std::string method, double tol, int max_depth)
 {
   // handles infinity in a and/or b by change of variable approach
-  if (isinf(a) && isinf(b)) {
+  if (std::isinf(a) && std::isinf(b)) {
     // if loewr = +inf or upper = -inf --> integral is 0
     if (a > 0 || b < 0) return 0.0;
 
     // split into two, (-inf, 0) and (0, +inf)
     return Integrate(func, a, 0.0, method, tol, max_depth) +
       Integrate(func, 0.0, b, method, tol, max_depth);
-  } else if (isinf(a)) {
+  } else if (std::isinf(a)) {
     if (a > 0) return 0.0;  // lower is +inf --> integral is 0
 
     // this is an integral over (-inf, b). to do this,
@@ -24,7 +24,7 @@ double Integrate(std::function<double(double)> &func,
     std::function<double(double)> new_func = [&func](double z) -> double {
       return func(-z); };
     return Integrate(new_func, -b, INFINITY, method, tol, max_depth);
-  } else if (isinf(b)) {
+  } else if (std::isinf(b)) {
     if (b < 0) return 0.0;  // upper if -inf --> integral is 0
 
     // this is an integral over (a, +inf).
@@ -35,7 +35,7 @@ double Integrate(std::function<double(double)> &func,
     std::function<double(double)> new_func = [&func, a](double z) -> double {
       return func(z/(1-z) + a) * pow(1-z, -2.0); };
 
-    if (fabs(func(b)) > 0.0) stop("function does not converge to zero");
+    if (std::fabs(func(b)) > 0.0) stop("function does not converge to zero");
 
     return Integrate(new_func, 0.0, 1.0, new_func(0.0), 0.0,
                      method, tol, max_depth);
@@ -79,15 +79,15 @@ double IntegrateTrapezoid(std::function<double(double)> &func,
   double f_mid = func(mid);
 
   // stop if nan or inf is observed
-  if (isnan(f_a) || isnan(f_b) || isnan(f_mid))
+  if (std::isnan(f_a) || std::isnan(f_b) || std::isnan(f_mid))
     stop("point value is nan");
-  if (isinf(f_a) || isinf(f_b) || isinf(f_mid))
+  if (std::isinf(f_a) || std::isinf(f_b) || std::isinf(f_mid))
     stop("point value is inf or -inf");
 
   double I1 = 0.5*(f_a + f_b)*(b-a);
   double I2 = 0.5*(f_a + 2*f_mid + f_b)*0.5*(b-a);
 
-  if (fabs(I2 - I1) < tol*(fabs(I1) + tol)) return I2;
+  if (std::fabs(I2 - I1) < tol*(std::fabs(I1) + tol)) return I2;
 
   depth_remained--;
   if (depth_remained < 0) stop("maximum recursion depth exceeded");
@@ -118,15 +118,15 @@ double IntegrateSimpson(std::function<double(double)> &func,
   double f_m2 = func(m2);
 
   // stop if nan or inf is observed
-  if (isnan(f_a) || isnan(f_b) || isnan(f_m1) || isnan(f_m2))
+  if (std::isnan(f_a) || std::isnan(f_b) || std::isnan(f_m1) || std::isnan(f_m2))
     stop("point value is nan");
-  if (isinf(f_a) || isinf(f_b) || isinf(f_m1) || isinf(f_m1))
+  if (std::isinf(f_a) || std::isinf(f_b) || std::isinf(f_m1) || std::isinf(f_m1))
     stop("point value is inf or -inf");
 
   double I1 = (f_a + 4*f_mid + f_b) / 3.0 * 0.5*(b-a);
   double I2 = (f_a + 4.0*f_m1 + 2.0*f_mid + 4.0*f_m2 + f_b) / 3.0 * 0.25*(b-a);
 
-  if (fabs(I2-I1) < tol*(fabs(I1) + tol)) return I2;
+  if (std::fabs(I2-I1) < tol*(std::fabs(I1) + tol)) return I2;
 
   depth_remained--;
   if (depth_remained < 0) stop("maximum recursion depth exceeded");
@@ -159,16 +159,18 @@ double IntegrateSimpson2(std::function<double(double)> &func,
   double f_m3 = func(m3);
 
   // stop if nan or inf is observed
-  if (isnan(f_a) || isnan(f_b) || isnan(f_mid) || isnan(f_m0) || isnan(f_m3))
+  if (std::isnan(f_a) || std::isnan(f_b) ||
+      std::isnan(f_mid) || std::isnan(f_m0) || std::isnan(f_m3))
     stop("point value is nan");
-  if (isinf(f_a) || isinf(f_b) || isinf(f_mid) || isinf(f_m0) || isinf(f_m3))
+  if (std::isinf(f_a) || std::isinf(f_b) ||
+      std::isinf(f_mid) || std::isinf(f_m0) || std::isinf(f_m3))
     stop("point value is inf or -inf");
 
   double I1 = 3.0/8.0 * (b-a)/3.0 * (f_a + 3.0*f_m1 + 3.0*f_m1 + f_b);
   double I2 = 3.0/8.0 * (b-a)/6.0 *
     (f_a + 3.0*f_m0 + 3.0*f_m1 + 2.0*f_mid + 3.0*f_m2 + 3.0*f_m3 + f_b);
 
-  if (fabs(I2-I1) < tol*(fabs(I1) + tol)) return I2;
+  if (std::fabs(I2-I1) < tol*(std::fabs(I1) + tol)) return I2;
 
   depth_remained--;
   if (depth_remained < 0) stop("maximum recursion depth exceeded");
@@ -210,11 +212,13 @@ double IntegrateRomberg(std::function<double(double)> &func,
 
 
   // stop if nan or inf is observed
-  if (isnan(f_a) || isnan(f_b) || isnan(f_m1) || isnan(f_m2) || isnan(f_m3) ||
-      isnan(f_mm1) || isnan(f_mm2) || isnan(f_mm3) || isnan(f_mm4))
+  if (std::isnan(f_a) || std::isnan(f_b) || std::isnan(f_m1) ||
+      std::isnan(f_m2) || std::isnan(f_m3) || std::isnan(f_mm1) ||
+      std::isnan(f_mm2) || std::isnan(f_mm3) || std::isnan(f_mm4))
     stop("point value is nan");
-  if (isinf(f_a) || isinf(f_b) || isinf(f_m1) || isinf(f_m2) || isinf(f_m3) ||
-      isinf(f_mm1) || isinf(f_mm2) || isinf(f_mm3) || isinf(f_mm4))
+  if (std::isinf(f_a) || std::isinf(f_b) || std::isinf(f_m1) ||
+      std::isinf(f_m2) || std::isinf(f_m3) || std::isinf(f_mm1) ||
+      std::isinf(f_mm2) || std::isinf(f_mm3) || std::isinf(f_mm4))
     stop("point value is inf or -inf");
 
   double I1 = 0.5 * (b-a) * (f_a + f_b);
@@ -229,7 +233,7 @@ double IntegrateRomberg(std::function<double(double)> &func,
   double I8 = I6 + (I6 - I5)/15.0;
   double I9 = I7 + (I7 - I6)/15.0;
 
-  if (fabs(I9-I8) < tol*(fabs(I8) + tol)) return I9;
+  if (std::fabs(I9-I8) < tol*(std::fabs(I8) + tol)) return I9;
 
   depth_remained--;
   if (depth_remained < 0) stop("maximum recursion depth exceeded");
@@ -259,7 +263,7 @@ void integrate_test()
     "  romberg    = " << Integrate(f1, 3.1, 3.9, "romberg", tol, max_depth) << "\n\n";
 
   std::function<double(double)> f2 = [](double x) -> double {
-    return exp(-0.5*x*x)/sqrt(2*3.141592653589793); };
+    return std::exp(-0.5*x*x)/std::sqrt(2*3.141592653589793); };
   Rcout << "integrate standard normal pdf over (-1.96, 1.96)\n" <<
     "  true value = " <<
     R::pnorm5(1.96, 0.0, 1.0, 1, 0) - R::pnorm5(-1.96, 0.0, 1.0, 1, 0) << "\n" <<
@@ -310,7 +314,7 @@ void integrate_test2(std::string method, double tol)
   // compute (-inf, inf) integral for standard normal pdf (the ans is 1.0)
   // this is for comparing the speed
   std::function<double(double)> f = [](double x) -> double {
-    return exp(-0.5*x*x)/sqrt(2*3.141592653589793); };
+    return std::exp(-0.5*x*x)/std::sqrt(2*3.141592653589793); };
   Integrate(f, -INFINITY, INFINITY, method, tol, 100);
 }
 
