@@ -1,6 +1,6 @@
 Package: rddsigma
 Type: Package
-Title: Sharp Regression Discontinuity Design with Running Variable Measured with Error 
+Title: Sharp Regression Discontinuity Design with Running Variable Measured with Error
 Version: 0.1.0
 Authors@R: c(
   person("Kota", "Mori", email = "kmori05@gmail.com", role = c("aut", "cre"))
@@ -14,6 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     bda,
+    decon,
     mixtools,
     numDeriv,
     stats,
@@ -22,6 +23,6 @@ Suggests:
     ggplot2,
     microbenchmark
 RoxygenNote: 5.0.1
-LinkingTo: 
+LinkingTo:
     Rcpp, RcppArmadillo
 SystemRequirements: C++11

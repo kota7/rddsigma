@@ -2,6 +2,7 @@
 
 S3method(print,rddsigma)
 S3method(summary,rddsigma)
+export(emdecon)
 export(emparam)
 export(gen_data)
 export(tsgauss)
