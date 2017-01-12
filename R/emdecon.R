@@ -1,14 +1,20 @@
 #' EM-Deconvolution Estimator
-#' @export
+#' @param d_vec binary integer vector of assignment
+#' @param w_vec numeric vector of observed running variable
+#' @param cutoff threshold value for assignment
+#' @param u_dist distribution of \eqn{x} and \eqn{u}
+#' @param reltol relative tolerance requied
+#' @param maxit maximum number of iteration
+#' @param verbose if true, progress is reported
+#' @param ... currently not used
+#' @return object of \code{rddsigma} class#' @export
 #' @examples
 #' dat <- gen_data(500, 0.2, 0)
 #' emdecon(dat$d, dat$w, 0, u_dist = "gauss", verbose = TRUE)
 #' emdecon(dat$d, dat$w, 0, u_dist = "lap", verbose = TRUE)
 emdecon <- function(
-  d_vec, w_vec, cutoff,
-  u_dist = c("gauss", "lap"),
-  reltol = 1e-5, maxit = 1000L,
-  verbose = FALSE, ...)
+  d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"),
+  reltol = 1e-5, maxit = 1000L, verbose = FALSE, ...)
 {
   ## input validation
   stopifnot(is.numeric(d_vec))
