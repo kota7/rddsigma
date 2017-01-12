@@ -27,7 +27,7 @@ for (i in 1:nrow(models))
     cat(sprintf("\r  %4d/%4d", b, B))
     dat <- gen_data(N, sigma, cutoff, u_dist = u_dist, x_dist = x_dist)
 
-    methods <- c("tsgauss", "emgg", "emgl")
+    methods <- c("tsgauss", "emgg", "emgl", "emdecong", "emdeconl")
     cat(": ")
     for (k in seq_along(methods))
     {
@@ -40,6 +40,10 @@ for (i in 1:nrow(models))
       } else if (methods[k] == "emgl") {
         o <- emparam(dat$d, dat$w, cutoff,
                      x_dist = "gauss", u_dist = "lap", verbose = FALSE)
+      } else if (methods[k] == "emdecong") {
+        o <- emdecon(dat$d, dat$w, cutoff, u_dist = "gauss", verbose = FALSE)
+      } else if (methods[k] == "emdeconl") {
+        o <- emdecon(dat$d, dat$w, cutoff, u_dist = "lap", verbose = FALSE)
       }
       tmp <- data.frame(
         data_id = i, sigma = sigma, x_dist = x_dist,
