@@ -25,7 +25,7 @@ emdecon(d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"), reltol = 1e-05,
 \item{...}{currently not used}
 }
 \value{
-object of \code{rddsigma} class#' @export
+object of \code{rddsigma} class
 }
 \description{
 Estimate the standard deviation of measurement error in the

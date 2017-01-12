@@ -71,6 +71,7 @@ private:
     }
     new_value /= double (nobs);
     double increment = new_value - cur_value;
+
     cur_value = new_value;
     return increment;
   }
@@ -278,6 +279,11 @@ public:
       }
       UpdateParameters();
       double increment = UpdateValueAndWeights();
+      // theoretically increment should be always positive
+      // if increment is negative, try to make integration more accurate
+      // this may avoid the potential cycle trap too
+      if (increment < 0) integ_tol *= 0.5;
+
       if (std::fabs(increment) < tol*(std::fabs(cur_value - increment) + tol)) {
         convergence = 0;
         if (verbose) Rcout << "CONVERGED!\n";

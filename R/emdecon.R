@@ -10,7 +10,7 @@
 #' @param maxit maximum number of iteration
 #' @param verbose if true, progress is reported
 #' @param ... currently not used
-#' @return object of \code{rddsigma} class#' @export
+#' @return object of \code{rddsigma} class
 #' @export
 #' @examples
 #' \dontrun{
