@@ -11,7 +11,7 @@ summary.rddsigma <- function(object, ...)
       x_dist <- "Gaussian"
     } else {
       x_dist <- object$x_dist
-      warning("unsupported x_dist. can be fake 'rddsigma'")
+      warning("unsupported x_dist")
     }
     if (object$u_dist == "gauss") {
       u_dist <- "Gaussian"
@@ -19,7 +19,18 @@ summary.rddsigma <- function(object, ...)
       u_dist <- "Laplace"
     } else {
       u_dist <- object$u_dist
-      warning("unsupported u_dist. can be fake 'rddsigma'")
+      warning("unsupported u_dist")
+    }
+  } else if (object$model == "emdecon") {
+    model <- "EM/Deconvolution"
+    x_dist <- "unspecified"
+    if (object$u_dist == "gauss") {
+      u_dist <- "Gaussian"
+    } else if (object$u_dist == "lap") {
+      u_dist <- "Laplace"
+    } else {
+      u_dist <- object$u_dist
+      warning("unsupported u_dist")
     }
   }
 

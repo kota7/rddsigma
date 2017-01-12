@@ -6,6 +6,38 @@
 
 using namespace Rcpp;
 
+// emdecon_update_sigma_gauss
+double emdecon_update_sigma_gauss(double sigma, std::vector<int> d_vec, std::vector<double> w_vec, double cutoff, std::vector<double> x, std::vector<double> px);
+RcppExport SEXP rddsigma_emdecon_update_sigma_gauss(SEXP sigmaSEXP, SEXP d_vecSEXP, SEXP w_vecSEXP, SEXP cutoffSEXP, SEXP xSEXP, SEXP pxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type d_vec(d_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type w_vec(w_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type cutoff(cutoffSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type px(pxSEXP);
+    rcpp_result_gen = Rcpp::wrap(emdecon_update_sigma_gauss(sigma, d_vec, w_vec, cutoff, x, px));
+    return rcpp_result_gen;
+END_RCPP
+}
+// emdecon_update_sigma_lap
+double emdecon_update_sigma_lap(double sigma, std::vector<int> d_vec, std::vector<double> w_vec, double cutoff, std::vector<double> x, std::vector<double> px);
+RcppExport SEXP rddsigma_emdecon_update_sigma_lap(SEXP sigmaSEXP, SEXP d_vecSEXP, SEXP w_vecSEXP, SEXP cutoffSEXP, SEXP xSEXP, SEXP pxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type d_vec(d_vecSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type w_vec(w_vecSEXP);
+    Rcpp::traits::input_parameter< double >::type cutoff(cutoffSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type px(pxSEXP);
+    rcpp_result_gen = Rcpp::wrap(emdecon_update_sigma_lap(sigma, d_vec, w_vec, cutoff, x, px));
+    return rcpp_result_gen;
+END_RCPP
+}
 // em_gauss_gauss_helper
 List em_gauss_gauss_helper(std::vector<int> d_vec, std::vector<double> w_vec, double cutoff, double tol, int maxit, std::string integ_method, double integ_tol, int integ_depth, bool verbose);
 RcppExport SEXP rddsigma_em_gauss_gauss_helper(SEXP d_vecSEXP, SEXP w_vecSEXP, SEXP cutoffSEXP, SEXP tolSEXP, SEXP maxitSEXP, SEXP integ_methodSEXP, SEXP integ_tolSEXP, SEXP integ_depthSEXP, SEXP verboseSEXP) {

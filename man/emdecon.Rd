@@ -4,7 +4,7 @@
 \alias{emdecon}
 \title{EM-Deconvolution Estimator}
 \usage{
-emdecon(d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"), reltol = 1e-06,
+emdecon(d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"), reltol = 1e-05,
   maxit = 1000L, verbose = FALSE, ...)
 }
 \description{
@@ -12,6 +12,7 @@ EM-Deconvolution Estimator
 }
 \examples{
 dat <- gen_data(500, 0.2, 0)
-emdecon(dat$d, dat$w, 0)
+emdecon(dat$d, dat$w, 0, u_dist = "gauss", verbose = TRUE)
+emdecon(dat$d, dat$w, 0, u_dist = "lap", verbose = TRUE)
 }
 

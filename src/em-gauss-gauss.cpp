@@ -272,7 +272,7 @@ public:
     {
       if (verbose) {
         Rcout.precision(3);
-        Rcout << "iter " << i+1 <<
+        Rcout << "iter " << i+1 << " : " <<
           " sigma = " << sigma << ", sd_x = " << sd_x <<
           " value = " << cur_value << "\n";
       }

@@ -43,7 +43,7 @@ private:
   double fx(double x)
   { return R::dnorm4(x, mu_x, sd_x, 0); }
   double fu(double x, int i)
-  { return exp(-std::sqrt(2) / sigma * std::fabs(w_vec[i] - x)) / sigma / std::sqrt(2.0); }
+  { return exp(-std::sqrt(2.0) / sigma * std::fabs(w_vec[i] - x)) / sigma / std::sqrt(2.0); }
 
 
 
@@ -272,7 +272,7 @@ public:
     {
       if (verbose) {
         Rcout.precision(3);
-        Rcout << "iter " << i+1 <<
+        Rcout << "iter " << i+1 << " : " <<
           " sigma = " << sigma << ", sd_x = " << sd_x <<
           " value = " << cur_value << "\n";
       }
