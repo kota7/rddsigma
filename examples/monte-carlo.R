@@ -10,7 +10,7 @@ results <- NULL
 B <- 100
 N <- 500
 cutoff <- 1
-models <- expand.grid(sigma = c(0.1, 0.5, 1),
+models <- expand.grid(sigma = c(0.2, 0.5, 1),
                       x_dist = c("gauss", "exp", "unif", "gaussmix"),
                       u_dist = c("gauss", "laplace"),
                       stringsAsFactors = FALSE)
