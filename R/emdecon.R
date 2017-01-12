@@ -1,4 +1,7 @@
 #' EM-Deconvolution Estimator
+#' @description Estimate the standard deviation of measurement error in the
+#' running variable of sharp RDD.  This estimator is constructed under the
+#' assumption that measurement error follow a known parametric distribution.
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
@@ -8,10 +11,13 @@
 #' @param verbose if true, progress is reported
 #' @param ... currently not used
 #' @return object of \code{rddsigma} class#' @export
+#' @export
 #' @examples
+#' \dontrun{
 #' dat <- gen_data(500, 0.2, 0)
 #' emdecon(dat$d, dat$w, 0, u_dist = "gauss", verbose = TRUE)
 #' emdecon(dat$d, dat$w, 0, u_dist = "lap", verbose = TRUE)
+#' }
 emdecon <- function(
   d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"),
   reltol = 1e-5, maxit = 1000L, verbose = FALSE, ...)
@@ -37,8 +43,6 @@ emdecon <- function(
   if (u_dist == "gauss") {
     get_px <- function()
     { decon::DeconPdf(w_vec, sigma, error = "normal", fft = TRUE) }
-    get_pu <- function()
-    { dnorm()}
   } else if (u_dist == "lap") {
     get_px <- function()
     { decon::DeconPdf(w_vec, sigma, error = "laplacian", fft = TRUE) }
@@ -54,8 +58,13 @@ emdecon <- function(
   {
     ## update sigma
     fx <- get_px()
-    new_sigma <- emdecon_update_sigma_gauss(sigma, d_vec, w_vec,
-                                            cutoff, fx$x, fx$y)
+    if (u_dist == "gauss") {
+      new_sigma <- emdecon_update_sigma_gauss(
+        sigma, d_vec, w_vec, cutoff, fx$x, fx$y)
+    } else if (u_dist == "lap") {
+      new_sigma <- emdecon_update_sigma_lap(
+        sigma, d_vec, w_vec, cutoff, fx$x, fx$y)
+    }
     if (verbose) cat("iter", it, ": sigma =", new_sigma, "\n")
     ## check convergence
     if (abs(new_sigma - sigma) < reltol*(abs(sigma) + reltol)) {

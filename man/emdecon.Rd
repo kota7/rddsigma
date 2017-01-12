@@ -7,12 +7,36 @@
 emdecon(d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"), reltol = 1e-05,
   maxit = 1000L, verbose = FALSE, ...)
 }
+\arguments{
+\item{d_vec}{binary integer vector of assignment}
+
+\item{w_vec}{numeric vector of observed running variable}
+
+\item{cutoff}{threshold value for assignment}
+
+\item{u_dist}{distribution of \eqn{x} and \eqn{u}}
+
+\item{reltol}{relative tolerance requied}
+
+\item{maxit}{maximum number of iteration}
+
+\item{verbose}{if true, progress is reported}
+
+\item{...}{currently not used}
+}
+\value{
+object of \code{rddsigma} class#' @export
+}
 \description{
-EM-Deconvolution Estimator
+Estimate the standard deviation of measurement error in the
+running variable of sharp RDD.  This estimator is constructed under the
+assumption that measurement error follow a known parametric distribution.
 }
 \examples{
+\dontrun{
 dat <- gen_data(500, 0.2, 0)
 emdecon(dat$d, dat$w, 0, u_dist = "gauss", verbose = TRUE)
 emdecon(dat$d, dat$w, 0, u_dist = "lap", verbose = TRUE)
+}
 }
 
