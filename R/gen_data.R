@@ -3,7 +3,7 @@
 #' @param sigma standard deviation of the measurement error term
 #' @param cutoff threshold value for the assignment
 #' @param u_dist distribution of the measurement error.
-#' Only "gauss" or "laplace" is supported.
+#' Only "gauss" or "lap" is supported.
 #' @param x_dist distribution of the true running variable.
 #' Either "gauss", "gaussmix" or any function that a generate random sample.
 #' @param mu_x,sd_x mean and standard deviation of gaussian distribution.
@@ -28,7 +28,7 @@
 #' gen_data(100, 0.2, 0)
 #' gen_data(100, 0.2, 1, u_dist = "laplace", x_dist = "exp")
 gen_data <- function(n, sigma, cutoff,
-                     u_dist = c("gauss", "laplace"),
+                     u_dist = c("gauss", "lap"),
                      x_dist = c("gauss", "exp", "unif", "gaussmix"),
                      mu_x = 0, sd_x = 1,
                      rate_x = 1,
@@ -67,7 +67,7 @@ gen_data <- function(n, sigma, cutoff,
   u_dist <- u_dist[1]
   if (u_dist == "gauss") {
     u_generator <- function(n) rnorm(n, sd = sigma)
-  } else if (u_dist == "laplace") {
+  } else if (u_dist == "lap") {
     u_generator <- function(n) bda::rlap(n, rate = sqrt(2)/sigma)
   } else {
     stop("u_dist must be either 'gauss' or 'laplace'")
