@@ -26,7 +26,7 @@
 #' @export
 #' @examples
 #' gen_data(100, 0.2, 0)
-#' gen_data(100, 0.2, 1, u_dist = "laplace", x_dist = "exp")
+#' gen_data(100, 0.2, 1, u_dist = "lap", x_dist = "exp")
 gen_data <- function(n, sigma, cutoff,
                      u_dist = c("gauss", "lap"),
                      x_dist = c("gauss", "exp", "unif", "gaussmix"),
