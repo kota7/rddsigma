@@ -51,6 +51,6 @@ Generate Simulation Data for a Sharp RDD with Mismeasured Running Variable
 }
 \examples{
 gen_data(100, 0.2, 0)
-gen_data(100, 0.2, 1, u_dist = "laplace", x_dist = "exp")
+gen_data(100, 0.2, 1, u_dist = "lap", x_dist = "exp")
 }
 
