@@ -30,7 +30,7 @@ for (i in 1:nrow(setup))
   out <- rbind(out, x)
 }
 cat(" done!\n")
-path <- "examples/simulation-data.csv"
+path <- "examples/sim-files/simulation-data.csv"
 write.csv(out, path, row.names = FALSE)
 cat("simulation data have been saved as:", path, "\n")
 

@@ -8,7 +8,7 @@ library(gridExtra)
 
 
 ## load data
-x <- read_csv("examples/simulation-data.csv")
+x <- read_csv("examples/sim-files/simulation-data.csv")
 
 
 ## do it!
@@ -44,7 +44,7 @@ for (i in unique(x$setup_id))
 }
 
 ## save it!
-write.csv(out, "examples/simres-tsgauss.csv", row.names = FALSE)
+write.csv(out, "examples/sim-files/simres-tsgauss.csv", row.names = FALSE)
 
 
 ## visualize it!
