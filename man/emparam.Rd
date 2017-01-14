@@ -5,8 +5,8 @@
 \title{EM Algorithm Estimator for Parametric Model}
 \usage{
 emparam(d_vec, w_vec, cutoff, x_dist = c("gauss"), u_dist = c("gauss",
-  "lap"), reltol = 1e-06, maxit = 1000L, integ_method = c("romberg",
-  "simpson", "trapezoid", "simpson2"), integ_reltol = 1e-06,
+  "lap"), reltol = 1e-05, maxit = 200L, integ_method = c("romberg",
+  "simpson", "trapezoid", "simpson2"), integ_reltol = reltol * 0.25,
   integ_depth = 100L, verbose = FALSE, ...)
 }
 \arguments{
@@ -44,8 +44,8 @@ known parametric distribution.
 \examples{
 \dontrun{
 dat <- gen_data(500, 0.2, 0)
-emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "gauss", verbose = TRUE)
+emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 }
 }
 \references{

@@ -20,7 +20,7 @@
 #' }
 emdecon <- function(
   d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"),
-  reltol = 1e-5, maxit = 1000L, verbose = FALSE, ...)
+  reltol = 1e-5, maxit = 300L, verbose = FALSE, ...)
 {
   ## input validation
   stopifnot(is.numeric(d_vec))

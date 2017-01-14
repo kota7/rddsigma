@@ -19,17 +19,17 @@
 #' @examples
 #' \dontrun{
 #' dat <- gen_data(500, 0.2, 0)
-#' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 #' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "gauss", verbose = TRUE)
+#' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 #' }
 #' @references
 #' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 emparam <- function(
   d_vec, w_vec, cutoff,
   x_dist = c("gauss"), u_dist = c("gauss", "lap"),
-  reltol = 1e-6, maxit = 1000L,
+  reltol = 1e-5, maxit = 200L,
   integ_method = c("romberg", "simpson", "trapezoid", "simpson2"),
-  integ_reltol = 1e-6, integ_depth = 100L,
+  integ_reltol = reltol*0.25, integ_depth = 100L,
   verbose = FALSE, ...)
 {
   ## input validation

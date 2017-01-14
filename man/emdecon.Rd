@@ -5,7 +5,7 @@
 \title{EM-Deconvolution Estimator}
 \usage{
 emdecon(d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"), reltol = 1e-05,
-  maxit = 1000L, verbose = FALSE, ...)
+  maxit = 300L, verbose = FALSE, ...)
 }
 \arguments{
 \item{d_vec}{binary integer vector of assignment}

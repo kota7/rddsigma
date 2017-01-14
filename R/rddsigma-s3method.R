@@ -49,6 +49,11 @@ summary.rddsigma <- function(object, ...)
   cat(" Method : ", model, "\n")
   cat(" x dist : ", x_dist, "\n")
   cat(" u dist : ", u_dist, "\n")
+  if (object$convergence == 0L) {
+    cat(" convergence: yes\n")
+  } else {
+    cat(" convergence: no\n")
+  }
   cat("\n")
 }
 

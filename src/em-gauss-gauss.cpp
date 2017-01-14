@@ -17,11 +17,16 @@ private:
   double cutoff;
 
   // control parameters
-  double integ_tol;  // accuracy for integration error
+  double integ_tol;   // accuracy for integration error
+  double integ_tol0;  // accuracy for integration error specified originally
   int integ_depth;   // maximum recursion depth for integration
   std::string integ_method; // integration method
   double tol;        // threshold tolerance for value improvement
   int maxit;
+
+  // error catcher
+  double integ_tol_limit;
+  bool accuracy_limit_error;
 
   // model parameters
   double sigma;
@@ -37,6 +42,7 @@ private:
   double cur_value;
   std::vector<double> weights;
   int convergence;
+  double last_increment;
 
   // density functions
   double fx(double x)
@@ -51,6 +57,8 @@ private:
     // update value and weights, then
     // returns increment
     double new_value = 0;
+    std::vector<double> new_weights(weights.size());
+
     for (int i = 0; i < nobs; i++)
     {
       std::function<double(double)> func = [this, i] (double x) -> double {
@@ -65,14 +73,36 @@ private:
         lower = -INFINITY;
         upper = cutoff;
       }
-      weights[i] = Integrate(func, lower, upper,
-                             integ_method, integ_tol, integ_depth);
-      new_value += log(weights[i]);
+      new_weights[i] = Integrate(func, lower, upper,
+                                 integ_method, integ_tol, integ_depth);
+      new_value += log(new_weights[i]);
     }
     new_value /= double (nobs);
     double increment = new_value - cur_value;
 
+    // check if the increment is positive
+    // otherwise, increase integration accuracy and re-compute
+    // but we allow tiny negative increment
+    if (increment < -tol*(std::fabs(cur_value) + tol)) {
+      integ_tol *= 0.2;
+      Rcout << "negative increment: " << increment <<
+          " integ_tol is now " << integ_tol << "\n";
+
+      // terminate if the accuracy is larger than the required limit
+      if (integ_tol < integ_tol_limit) {
+        accuracy_limit_error = true;
+        return increment;
+      }
+
+      // recompute parameters with new accuracy
+      UpdateParameters();
+      return UpdateValueAndWeights();
+    }
+
+    // update value
     cur_value = new_value;
+    for (int i = 0; i < weights.size(); i++) weights[i] = new_weights[i];
+
     return increment;
   }
 
@@ -230,8 +260,13 @@ public:
     tol = tol_;
     maxit = maxit_,
     integ_tol = integ_tol_;
+    integ_tol0 = integ_tol;
     integ_depth = integ_depth_;
     integ_method = integ_method_;
+
+    // error catcher
+    integ_tol_limit = 1e-14;
+    accuracy_limit_error = false;
 
     // initialize parameters
     // set mu_x = mean(w)
@@ -279,18 +314,23 @@ public:
       }
       UpdateParameters();
       double increment = UpdateValueAndWeights();
-      // theoretically increment should be always positive
-      // if increment is negative, try to make integration more accurate
-      // this may avoid the potential cycle trap too
-      if (increment < 0) integ_tol *= 0.5;
+      if (accuracy_limit_error) {
+        // terminate the iteration if the accuracy limit has reached
+        // did not converge
+        warning("dit not converge: accuracy limit has reached");
+        break;
+      }
 
       if (std::fabs(increment) < tol*(std::fabs(cur_value - increment) + tol)) {
         convergence = 0;
+        last_increment = increment;
         if (verbose) Rcout << "CONVERGED!\n";
         break;
       }
     }
 
+    // use original integration accuracy for avar computation
+    integ_tol = integ_tol0;
     UpdateAvarAndSe();
   }
 
@@ -306,7 +346,8 @@ public:
       Named("stderr") = stderror,
       Named("avar") = avar,
       Named("nobs") = nobs,
-      Named("convergence") = convergence
+      Named("convergence") = convergence,
+      Named("last_increment") = last_increment
     );
     return out;
   }
