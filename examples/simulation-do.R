@@ -1,5 +1,5 @@
 #source("examples/simulate-tsgauss.R")
 #source("examples/simulate-em-gauss-lap.R")
+#source("examples/simulate-emdecon-lap.R")
+#source("examples/simulate-emdecon-gauss.R")
 source("examples/simulate-em-gauss-gauss.R")
-source("examples/simulate-emdecon-lap.R")
-source("examples/simulate-emdecon-gauss.R")
