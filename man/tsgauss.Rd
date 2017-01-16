@@ -4,7 +4,7 @@
 \alias{tsgauss}
 \title{Two Step Gaussian Estimator}
 \usage{
-tsgauss(d_vec, w_vec, cutoff, ...)
+tsgauss(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
 }
 \arguments{
 \item{d_vec}{binary integer vector of assignment}
@@ -12,6 +12,9 @@ tsgauss(d_vec, w_vec, cutoff, ...)
 \item{w_vec}{numeric vector of observed running variable}
 
 \item{cutoff}{threshold value for assignment}
+
+\item{init_ratio}{ratio of the intial sigma^2
+to the sample variance of \code{w}. the numeric between 0 and 1}
 
 \item{...}{additional controls for \code{optim}}
 }

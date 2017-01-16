@@ -6,6 +6,8 @@
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
+#' @param init_ratio ratio of the intial sigma^2
+#' to the sample variance of \code{w}. the numeric between 0 and 1
 #' @param ... additional controls for \code{optim}
 #' @return object of \code{rddsigma} class
 #' @export
@@ -14,7 +16,7 @@
 #' tsgauss(dat$d, dat$w, 0)
 #' @references
 #' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
-tsgauss <- function(d_vec, w_vec, cutoff, ...)
+tsgauss <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
 {
   ## input validation
   stopifnot(is.numeric(d_vec))
@@ -158,10 +160,10 @@ tsgauss_r <- function(d_vec, w_vec, cutoff, ...)
     mean(unlist(P1)*d_vec + unlist(P2)*(1-d_vec))
   }
 
-  ## initial value is set to sd_w/2
   ## range is between 1e-8 to sd_w
   ## do not set to zero to avoid numerical error
-  o <- optim(sd_w/2, lfunc, lower = 1e-8, upper = sd_w,
+  initial_sigma <- sqrt(sd_w^2*init_ratio)
+  o <- optim(initial_sigma, lfunc, lower = 1e-8, upper = sd_w,
              method = "Brent", hessian = TRUE,
              control = list(fnscale = -1, ...))
   return(o)

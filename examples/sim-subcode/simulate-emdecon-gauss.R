@@ -51,8 +51,8 @@ write.csv(out, "examples/sim-files/simres-emdecon-gauss.csv",
 
 
 ## visualize it!
-g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma"),
+g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
-g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma"),
+g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
 grid.arrange(g1, g2)

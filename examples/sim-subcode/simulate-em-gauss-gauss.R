@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 
-## Simulation of EM param estimator with Gauss-Laplace assumption
+## Simulation of EM param estimator with Gauss-Gauss assumption
 
 
 ## load data
@@ -13,7 +13,7 @@ x <- read_csv("examples/sim-files/simulation-data.csv")
 
 ## do it!
 out <- NULL
-cat("Simulating for EM param model (Gauss/Laplace) ...\n")
+cat("Simulating for EM param model (Gauss/Gauss) ...\n")
 for (i in unique(x$setup_id))
 {
   y <- filter(x, setup_id == i)
@@ -29,30 +29,37 @@ for (i in unique(x$setup_id))
     stopifnot(nrow(u) == 1L)
 
     ## estimate
-    fit <- emparam(z$d, z$w, z$cutoff[1], x_dist = "gauss", u_dist = "lap")
-
-    ## stack
-    o <- data.frame(variable = names(fit$estimate),
-                    estimate = fit$estimate,
-                    stderr = fit$stderr,
-                    convergence = fit$convergence)
-    o <- cbind(data.frame(estimator = "em-gauss-lap",
+    fit <- try(
+      emparam(z$d, z$w, z$cutoff[1], x_dist = "gauss", u_dist = "gauss",
+              verbose = FALSE)
+    )
+    if (inherits(fit, "try-error")) {
+      o <- data.frame(variable = "sigma",
+                      estimate = NA_real_,
+                      stderr = NA_real_,
+                      convergence = 1)
+    } else {
+      o <- data.frame(variable = names(fit$estimate),
+                      estimate = fit$estimate,
+                      stderr = fit$stderr,
+                      convergence = fit$convergence)
+    }
+    o <- cbind(data.frame(estimator = "em-gauss-gauss",
                           stringsAsFactors = FALSE), o)
     o <- merge(o, u)
-
     out <- rbind(out, o)
   }
   cat("\n")
 }
 
 ## save it!
-write.csv(out, "examples/sim-files/simres-emparam-gauss-lap.csv",
+write.csv(out, "examples/sim-files/simres-emparam-gauss-gauss.csv",
           row.names = FALSE)
 
 
 ## visualize it!
-g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma"),
+g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
-g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma"),
+g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
 grid.arrange(g1, g2)

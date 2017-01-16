@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 
-## Simulation of Two step gauss estimator
+## Simulation of EM decon estimator with Laplace assumption
 
 
 ## load data
@@ -13,7 +13,7 @@ x <- read_csv("examples/sim-files/simulation-data.csv")
 
 ## do it!
 out <- NULL
-cat("Simulating for Two-step Gauss Estimator...\n")
+cat("Simulating for EM decon model (Laplace) ...\n")
 for (i in unique(x$setup_id))
 {
   y <- filter(x, setup_id == i)
@@ -29,14 +29,15 @@ for (i in unique(x$setup_id))
     stopifnot(nrow(u) == 1L)
 
     ## estimate
-    fit <- tsgauss(z$d, z$w, z$cutoff[1])
+    fit <- emdecon(z$d, z$w, z$cutoff[1], u_dist = "lap")
 
     ## stack
     o <- data.frame(variable = names(fit$estimate),
                     estimate = fit$estimate,
                     stderr = fit$stderr,
                     convergence = fit$convergence)
-    o <- cbind(data.frame(estimator = "tsgauss", stringsAsFactors = FALSE), o)
+    o <- cbind(data.frame(estimator = "emdecon-lap",
+                          stringsAsFactors = FALSE), o)
     o <- merge(o, u)
 
     out <- rbind(out, o)
@@ -45,12 +46,13 @@ for (i in unique(x$setup_id))
 }
 
 ## save it!
-write.csv(out, "examples/sim-files/simres-tsgauss.csv", row.names = FALSE)
+write.csv(out, "examples/sim-files/simres-emdecon-lap.csv",
+          row.names = FALSE)
 
 
 ## visualize it!
-g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma"),
+g1 <- ggplot(filter(out, sigma == 0.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
-g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma"),
+g2 <- ggplot(filter(out, sigma == 1.2, variable == "sigma", convergence == 0),
              aes(factor(setup_id), estimate)) + geom_boxplot()
 grid.arrange(g1, g2)
