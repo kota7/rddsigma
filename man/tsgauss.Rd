@@ -13,8 +13,7 @@ tsgauss(d_vec, w_vec, cutoff, init_sigma = NULL, ...)
 
 \item{cutoff}{threshold value for assignment}
 
-\item{init_sigma}{initial value of sigma. If NULL, randomly assigned
-to the sample variance of \code{w}. the numeric between 0 and 1}
+\item{init_sigma}{initial value of sigma. If NULL, randomly assigned}
 
 \item{...}{additional controls for \code{optim}}
 }

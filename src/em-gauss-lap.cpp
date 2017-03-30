@@ -88,12 +88,18 @@ private:
       // numerical problem may occur
       if (increment > -tol*(std::fabs(cur_value) + tol)) break;
 
-      if (verbose) Rcout << "negative increment: " << increment;
 
       // First, try increasing integration accuracy up to the limit
       if (integ_tol < integ_tol_limit) break;
       integ_tol *= 0.2;
-      if (verbose) Rcout << " integ_tol is now " << integ_tol << "\n";
+      if (verbose) {
+        Rcout.precision(5);
+        Rcout << "negative increment: " << increment;
+        Rcout << " integ_tol is now " << integ_tol << "\n";
+        Rcout.flush();
+      }
+      // first, recompute value and weights with the new integ_tol level
+      RecomputeValueAndWeights();
       ComputeNewValueAndWeights();
     }
 
@@ -103,18 +109,26 @@ private:
     {
       increment = new_value - cur_value;
       if (increment > -tol*(std::fabs(cur_value) + tol)) break;
+
       // as the last resort, we change the parameters
       // around the current values to see if value gets improved
       // magnitude of change (mom_rate) starts from 1
       // and gradually becomes smaller
       // Eventually the rate is almost zero, i.e. no paramter change
-      if (verbose) Rcout << " seek the neighborhood with rate " << mom_rate << "\n";
+      if (verbose) {
+        Rcout.precision(5);
+        Rcout << "negative increment: " << increment;
+        Rcout << " seek the neighborhood with rate " << mom_rate << "\n";
+        //Rcout << "sigma = " << new_sigma << ", value = " << new_value << "\n";
+        Rcout.flush();
+      }
       int sign1 = count % 2 == 0 ? 1 : -1;
       new_sigma = sigma + sign1*mom_rate * mom_sigma;
       int sign2 = count % 4 < 2 ? 1 : -1;
       new_sdx   = sd_x + sign2*mom_rate * mom_sdx;
-      mom_rate *= 0.8;
+
       count++;
+      mom_rate *= 0.9;
 
       ComputeNewValueAndWeights();
     }
@@ -132,6 +146,32 @@ private:
     return increment;
   }
 
+
+
+  void RecomputeValueAndWeights()
+  {
+    cur_value = 0;
+
+    for (int i = 0; i < nobs; i++)
+    {
+      std::function<double(double)> func = [this, i] (double x) -> double {
+        return fx(x) * fu(x, i); };
+
+      double lower;
+      double upper;
+      if (d_vec[i] == 1) {
+        lower = cutoff;
+        upper = INFINITY;
+      } else {
+        lower = -INFINITY;
+        upper = cutoff;
+      }
+      weights[i] = Integrate(func, lower, upper,
+                             integ_method, integ_tol, integ_depth);
+      cur_value += log(weights[i]);
+    }
+    cur_value /= double (nobs);
+  }
 
 
   void ComputeNewValueAndWeights()
@@ -363,9 +403,7 @@ public:
   void Estimate(bool verbose)
   {
     // initialize value and weights with the initial params
-    ComputeNewValueAndWeights();
-    cur_value = new_value;
-    for (unsigned int i = 0; i < weights.size(); i++) weights[i] = new_weights[i];
+    RecomputeValueAndWeights();
 
     convergence = 1;
     for (int i = 0; i < maxit; i++)
@@ -373,8 +411,9 @@ public:
       if (verbose) {
         Rcout.precision(3);
         Rcout << "iter " << i+1 << " : " <<
-          " sigma = " << sigma << ", sd_x = " << sd_x <<
-          " value = " << cur_value << "\n";
+          " sigma = " << sigma << ", sd_x = " << sd_x;
+        Rcout.precision(5);
+        Rcout << " value = " << cur_value << "\n";
       }
       double increment = Update(verbose);
 
