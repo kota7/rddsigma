@@ -1,5 +1,5 @@
-#source("examples/sim-subcode/simulate-tsgauss.R")
-#source("examples/sim-subcode/simulate-em-gauss-lap.R")
+source("examples/sim-subcode/simulate-tsgauss.R")
+source("examples/sim-subcode/simulate-em-gauss-lap.R")
+source("examples/sim-subcode/simulate-em-gauss-gauss.R")
 #source("examples/sim-subcode/simulate-emdecon-lap.R")
 #source("examples/sim-subcode/simulate-emdecon-gauss.R")
-source("examples/sim-subcode/simulate-em-gauss-gauss.R")

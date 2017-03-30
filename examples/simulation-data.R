@@ -2,13 +2,14 @@ library(rddsigma)
 library(ggplot2)
 library(dplyr)
 
+if (!dir.exists("examples/sim-files")) dir.create("examples/sim-files")
 
 
 ## generate and save simulation data
 set.seed(123)
 setup <- expand.grid(sigma = c(0.2, 1.2),
                      x_dist = c("gauss", "exp"),
-                     u_dist = c("gauss", "lap"),
+                     u_dist = c("gauss", "laplace"),
                      B = 100L, N = 500L, cutoff = 1,
                      stringsAsFactors = FALSE)
 
