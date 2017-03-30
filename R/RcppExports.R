@@ -9,12 +9,12 @@ emdecon_update_sigma_lap <- function(sigma, d_vec, w_vec, cutoff, x, px) {
     .Call('rddsigma_emdecon_update_sigma_lap', PACKAGE = 'rddsigma', sigma, d_vec, w_vec, cutoff, x, px)
 }
 
-em_gauss_gauss_helper <- function(d_vec, w_vec, cutoff, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
-    .Call('rddsigma_em_gauss_gauss_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
+em_gauss_gauss_helper <- function(d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
+    .Call('rddsigma_em_gauss_gauss_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
 }
 
-em_gauss_lap_helper <- function(d_vec, w_vec, cutoff, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
-    .Call('rddsigma_em_gauss_lap_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
+em_gauss_lap_helper <- function(d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
+    .Call('rddsigma_em_gauss_lap_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
 }
 
 integrate_test <- function() {

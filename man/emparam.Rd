@@ -4,10 +4,10 @@
 \alias{emparam}
 \title{EM Algorithm Estimator for Parametric Model}
 \usage{
-emparam(d_vec, w_vec, cutoff, x_dist = c("gauss"), u_dist = c("gauss",
-  "lap"), reltol = 1e-05, maxit = 200L, integ_method = c("romberg",
-  "simpson", "trapezoid", "simpson2"), integ_reltol = reltol * 0.25,
-  integ_depth = 100L, verbose = FALSE, ...)
+emparam(d_vec, w_vec, cutoff, init_sigma = NULL, x_dist = c("gauss"),
+  u_dist = c("gauss", "lap"), reltol = 1e-05, maxit = 200L,
+  integ_method = c("romberg", "simpson", "trapezoid", "simpson2"),
+  integ_reltol = reltol * 0.25, integ_depth = 100L, verbose = FALSE, ...)
 }
 \arguments{
 \item{d_vec}{binary integer vector of assignment}
@@ -15,6 +15,8 @@ emparam(d_vec, w_vec, cutoff, x_dist = c("gauss"), u_dist = c("gauss",
 \item{w_vec}{numeric vector of observed running variable}
 
 \item{cutoff}{threshold value for assignment}
+
+\item{init_sigma}{initial values of sigma. If NULL, randomly assigned}
 
 \item{x_dist, u_dist}{distribution of \eqn{x} and \eqn{u}}
 

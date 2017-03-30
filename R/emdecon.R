@@ -22,6 +22,8 @@ emdecon <- function(
   d_vec, w_vec, cutoff, u_dist = c("gauss", "lap"),
   reltol = 1e-5, maxit = 300L, verbose = FALSE, ...)
 {
+  warning("This methodology is under development")
+
   ## input validation
   stopifnot(is.numeric(d_vec))
   if (!is.integer(d_vec)) d_vec <- as.integer(d_vec)
@@ -77,7 +79,7 @@ emdecon <- function(
 
   out <- list(estimate = c(sigma = sigma),
               stderr = NA_real_, avar = matrix(NA_real_, nrow = 1, ncol = 1),
-              nobs = n,
+              nobs = n, value = NA_real_,
               convergence = convergence,
               model = "emdecon", x_dist = "nonparametric", u_dist = u_dist)
   class(out) <- "rddsigma"

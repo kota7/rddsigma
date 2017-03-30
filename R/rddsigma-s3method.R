@@ -21,7 +21,8 @@ summary.rddsigma <- function(object, ...)
       u_dist <- object$u_dist
       warning("unsupported u_dist")
     }
-  } else if (object$model == "emdecon") {
+  }
+  else if (object$model == "emdecon") {
     model <- "EM/Deconvolution"
     x_dist <- "unspecified"
     if (object$u_dist == "gauss") {
@@ -37,6 +38,7 @@ summary.rddsigma <- function(object, ...)
   est <- object$estimate
   se <- object$stderr
   n <- object$nobs
+  value <- object$value
   zval <- est / se
   p <- pnorm(abs(zval), lower.tail = FALSE)
   coef_table <- cbind(est, se, zval, p)
@@ -49,6 +51,7 @@ summary.rddsigma <- function(object, ...)
   cat(" Method : ", model, "\n")
   cat(" x dist : ", x_dist, "\n")
   cat(" u dist : ", u_dist, "\n")
+  cat(" value  : ", value, "\n")
   if (object$convergence == 0L) {
     cat(" convergence: yes\n")
   } else {

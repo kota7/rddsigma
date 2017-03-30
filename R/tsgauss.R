@@ -6,8 +6,7 @@
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
-#' @param init_ratio ratio of the intial sigma^2
-#' to the sample variance of \code{w}. the numeric between 0 and 1
+#' @param init_sigma initial value of sigma. If NULL, randomly assigned
 #' @param ... additional controls for \code{optim}
 #' @return object of \code{rddsigma} class
 #' @export
@@ -16,7 +15,7 @@
 #' tsgauss(dat$d, dat$w, 0)
 #' @references
 #' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
-tsgauss <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
+tsgauss <- function(d_vec, w_vec, cutoff, init_sigma = NULL, ...)
 {
   ## input validation
   stopifnot(is.numeric(d_vec))
@@ -114,10 +113,12 @@ tsgauss <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
   }
 
 
-  ## initial value is set to sd_w/2
   ## range is between 1e-8 to sd_w
   ## do not set to zero to avoid numerical error
-  o <- optim(sd_w/2, lfunc, lower = 1e-8, upper = sd_w,
+  if (is.null(init_sigma)) {
+    init_sigma <- runif(1) * sd(w_vec)
+  }
+  o <- optim(init_sigma, lfunc, lower = 1e-8, upper = sd_w,
              method = "Brent", hessian = TRUE,
              control = list(fnscale = -1, ...))
   avar <- get_avar(o$par)
@@ -125,6 +126,7 @@ tsgauss <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
   out <- list(estimate = c(sigma = o$par, mu_x = mu_x,
                            sd_x = sqrt(sd_w^2 - o$par^2), sd_w = sd_w),
               stderr = sqrt(diag(avar)/n), avar = avar, nobs = n,
+              value = o$value,
               convergence = o$convergence,
               model = "tsgauss", x_dist = "gauss", u_dist = "gauss")
   class(out) <- "rddsigma"
@@ -135,7 +137,7 @@ tsgauss <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
 
 ## pure R implementation, significantly slower than that using c++ helper
 ## kept for reference and debugging
-tsgauss_r <- function(d_vec, w_vec, cutoff, ...)
+tsgauss_r <- function(d_vec, w_vec, cutoff, init_ratio = 0.25, ...)
 {
   ## remove NAs, if any
   flg <- !is.na(d_vec) & !is.na(w_vec)

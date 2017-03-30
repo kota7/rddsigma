@@ -6,6 +6,7 @@
 #' @param d_vec binary integer vector of assignment
 #' @param w_vec numeric vector of observed running variable
 #' @param cutoff threshold value for assignment
+#' @param init_sigma initial values of sigma. If NULL, randomly assigned
 #' @param x_dist,u_dist distribution of \eqn{x} and \eqn{u}
 #' @param reltol relative tolerance requied
 #' @param maxit maximum number of iteration
@@ -25,7 +26,7 @@
 #' @references
 #' Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 emparam <- function(
-  d_vec, w_vec, cutoff,
+  d_vec, w_vec, cutoff, init_sigma = NULL,
   x_dist = c("gauss"), u_dist = c("gauss", "lap"),
   reltol = 1e-5, maxit = 200L,
   integ_method = c("romberg", "simpson", "trapezoid", "simpson2"),
@@ -95,15 +96,21 @@ emparam <- function(
     verbose <- verbose[1]
   }
 
+
+  if (is.null(init_sigma)) {
+    init_sigma <- runif(1) * sd(w_vec)
+  }
+
+
   if (x_dist == "gauss") {
     if (u_dist == "gauss") {
       out <- em_gauss_gauss_helper(
-        d_vec, w_vec, cutoff,
+        d_vec, w_vec, cutoff, init_sigma,
         reltol, maxit,
         integ_method, integ_reltol, integ_depth, verbose)
     } else if (u_dist == "lap") {
       out <- em_gauss_lap_helper(
-        d_vec, w_vec, cutoff,
+        d_vec, w_vec, cutoff, init_sigma,
         reltol, maxit,
         integ_method, integ_reltol, integ_depth, verbose)
     } else {

@@ -63,8 +63,12 @@ private:
   double new_fu(double x, int i)
   { return R::dnorm4(w_vec[i] - x, 0, new_sigma, 0); }
 
+  // momentum
+  double mom_sdx;
+  double mom_sigma;
 
-  double Update()
+
+  double Update(bool verbose)
   {
     // Update (param, weights, value)
     // The process make sures that the value is improved
@@ -72,32 +76,59 @@ private:
     // returns the increments in the value
 
 
-    ComputeNewParams();
+    ComputeNewParameters();
     ComputeNewValueAndWeights();
 
-    double increment = new_value - cur_value;
-    // is increment positive (up to numerical error)?
-    // if not, increase integration accuracy
-    if (increment < -tol*(std::fabs(cur_value) + tol)) {
-      integ_tol *= 0.2;
-      Rcout << "negative increment: " << increment <<
-        " integ_tol is now " << integ_tol << "\n";
+    double increment;
+    integ_tol = integ_tol0;
+    while (true)
+    {
+      increment = new_value - cur_value;
+      // is increment positive (up to some small error)?
+      // theoretically EM update must improve the value, but
+      // numerical problem may occur
+      if (increment > -tol*(std::fabs(cur_value) + tol)) break;
 
-      // terminate if the accuracy is larger than the required limit
-      if (integ_tol < integ_tol_limit) {
-        accuracy_limit_error = true;
-        return increment;
-      }
-      // do the process again, with new integ accuracy
-      return Update();
+      if (verbose) Rcout << "negative increment: " << increment;
+
+      // First, try increasing integration accuracy up to the limit
+      if (integ_tol < integ_tol_limit) break;
+      integ_tol *= 0.2;
+      if (verbose) Rcout << " integ_tol is now " << integ_tol << "\n";
+
+      ComputeNewValueAndWeights();
+    }
+
+    double mom_rate = 1;
+    int count = 0;
+    while (true)
+    {
+      increment = new_value - cur_value;
+      if (increment > -tol*(std::fabs(cur_value) + tol)) break;
+      // as the last resort, we change the parameters
+      // around the current values to see if value gets improved
+      // magnitude of change (mom_rate) starts from 1
+      // and gradually becomes smaller
+      // Eventually the rate is almost zero, i.e. no paramter change
+      if (verbose) Rcout << " seek the neighborhood with rate " << mom_rate << "\n";
+      int sign1 = count % 2 == 0 ? 1 : -1;
+      new_sigma = sigma + sign1*mom_rate * mom_sigma;
+      int sign2 = count % 4 < 2 ? 1 : -1;
+      new_sdx   = sd_x + sign2*mom_rate * mom_sdx;
+      mom_rate *= 0.8;
+      count++;
+
+      ComputeNewValueAndWeights();
     }
 
     // now the value has been improved.
     // so apply new (params, weights, value)
+    mom_sigma = new_sigma - sigma;
+    mom_sdx = new_sdx - sd_x;
     sigma = new_sigma;
     sd_x = new_sdx;
     cur_value = new_value;
-    for (unsigned int i = 0; i < weights.size(); i++) weights[i] = new_weights[i];
+    for (size_t i = 0; i < weights.size(); i++) weights[i] = new_weights[i];
 
     return increment;
   }
@@ -129,7 +160,7 @@ private:
   }
 
 
-  void ComputeNewParams()
+  void ComputeNewParameters()
   {
     // update parameters for u
     new_sigma = 0;
@@ -171,108 +202,6 @@ private:
     }
     new_sdx = std::sqrt(new_sdx / (double)nobs);
   }
-
-//
-//   double UpdateValueAndWeights()
-//   {
-//     // update value and weights, then
-//     // returns increment
-//     double new_value = 0;
-//     std::vector<double> new_weights(weights.size());
-//
-//     for (int i = 0; i < nobs; i++)
-//     {
-//       std::function<double(double)> func = [this, i] (double x) -> double {
-//         return fx(x,mu_x,sd_x) * fu(x,i,sigma); };
-//
-//       double lower;
-//       double upper;
-//       if (d_vec[i] == 1) {
-//         lower = cutoff;
-//         upper = INFINITY;
-//       } else {
-//         lower = -INFINITY;
-//         upper = cutoff;
-//       }
-//       new_weights[i] = Integrate(func, lower, upper,
-//                                  integ_method, integ_tol, integ_depth);
-//       new_value += log(new_weights[i]);
-//     }
-//     new_value /= double (nobs);
-//     double increment = new_value - cur_value;
-//
-//     // check if the increment is positive
-//     // otherwise, increase integration accuracy and re-compute
-//     // but we allow tiny negative increment
-//     if (increment < -tol*(std::fabs(cur_value) + tol)) {
-//       integ_tol *= 0.2;
-//       Rcout << "negative increment: " << increment <<
-//           " integ_tol is now " << integ_tol << "\n";
-//
-//       // terminate if the accuracy is larger than the required limit
-//       if (integ_tol < integ_tol_limit) {
-//         accuracy_limit_error = true;
-//         return increment;
-//       }
-//
-//       // recompute parameters with new accuracy
-//       UpdateParameters();
-//       return UpdateValueAndWeights();
-//     }
-//
-//     // update value
-//     cur_value = new_value;
-//     for (unsigned int i = 0; i < weights.size(); i++) weights[i] = new_weights[i];
-//
-//     return increment;
-//   }
-
-  // void UpdateParameters()
-  // {
-  //   // update parameters for u
-  //   std::function<double(double)> func;
-  //   double new_sigma = 0;
-  //   for (int i = 0; i < nobs; i++)
-  //   {
-  //     func = [this,i] (double x) -> double {
-  //       return fx(x) * fu(x, i) / weights[i] * std::pow(w_vec[i] - x, 2); };
-  //     double lower;
-  //     double upper;
-  //     if (d_vec[i] == 1) {
-  //       lower = cutoff;
-  //       upper = INFINITY;
-  //     } else {
-  //       lower = -INFINITY;
-  //       upper = cutoff;
-  //     }
-  //     new_sigma += Integrate(func, lower, upper,
-  //                            integ_method, integ_tol, integ_depth);
-  //   }
-  //   new_sigma = std::sqrt(new_sigma / (double)nobs);
-  //
-  //   // update paramters for x
-  //   double new_sdx = 0;
-  //   for (int i = 0; i < nobs; i++)
-  //   {
-  //     func = [this,i] (double x) -> double {
-  //       return fx(x) * fu(x, i) / weights[i] * std::pow(x - mu_x, 2); };
-  //     double lower;
-  //     double upper;
-  //     if (d_vec[i] == 1) {
-  //       lower = cutoff;
-  //       upper = INFINITY;
-  //     } else {
-  //       lower = -INFINITY;
-  //       upper = cutoff;
-  //     }
-  //     new_sdx += Integrate(func, lower, upper,
-  //                          integ_method, integ_tol, integ_depth);
-  //   }
-  //   new_sdx = std::sqrt(new_sdx / (double)nobs);
-  //
-  //   sigma = new_sigma;
-  //   sd_x = new_sdx;
-  // }
 
 
   void UpdateAvarAndSe()
@@ -371,7 +300,8 @@ public:
 
   EmGaussGaussModel(
       const std::vector<int> &d_vec_, const std::vector<double> &w_vec_,
-      double cutoff_, double tol_, int maxit_,
+      double cutoff_, double init_sigma,
+      double tol_, int maxit_,
       std::string integ_method_, double integ_tol_, int integ_depth_)
   {
     d_vec = d_vec_;
@@ -401,9 +331,11 @@ public:
     }
     mu_x /= (double) nobs;
     double s2 = w2 / (double) nobs - mu_x*mu_x; // (sigma_w)^2
-    sd_x = std::sqrt(s2 * 0.75);
-    sigma = std::sqrt(s2 * 0.25);
+    // sd_x = std::sqrt(s2 * 0.75);
+    // sigma = std::sqrt(s2 * 0.25);
     sd_w = std::sqrt(s2);
+    sigma = init_sigma;
+    sd_x = std::sqrt(s2 - sigma*sigma);
 
     // initialize avar and se
     avar = NumericMatrix(3, 3);
@@ -421,6 +353,9 @@ public:
     new_value = -INFINITY;
     new_sdx = sd_x;
     new_sigma = sigma;
+
+    mom_sdx = sd_x*0.1;
+    mom_sigma = sigma*0.1;
 
     convergence = -1;
   }
@@ -443,11 +378,11 @@ public:
           " value = " << cur_value << "\n";
       }
 
-      double increment = Update();
+      double increment = Update(verbose);
       if (accuracy_limit_error) {
         // terminate the iteration if the accuracy limit has reached
         // did not converge
-        warning("dit not converge: accuracy limit has reached");
+        warning("dit not converge: reached the accuracy limit");
         break;
       }
 
@@ -477,6 +412,7 @@ public:
       Named("avar") = avar,
       Named("nobs") = nobs,
       Named("convergence") = convergence,
+      Named("value") = cur_value,
       Named("last_increment") = last_increment
     );
     return out;
@@ -488,11 +424,13 @@ public:
 // [[Rcpp::export]]
 List em_gauss_gauss_helper(
   std::vector<int> d_vec, std::vector<double> w_vec, double cutoff,
+  double init_sigma,
   double tol, int maxit,
   std::string integ_method, double integ_tol, int integ_depth,
   bool verbose)
 {
-  EmGaussGaussModel model(d_vec, w_vec, cutoff, tol, maxit,
+  EmGaussGaussModel model(d_vec, w_vec, cutoff, init_sigma,
+                          tol, maxit,
                           integ_method, integ_tol, integ_depth);
   model.Estimate(verbose);
   return model.CompileOutput();
@@ -502,11 +440,15 @@ List em_gauss_gauss_helper(
 /*** R
 library(rddsigma)
 dat <- gen_data(500, 0.2, 1)
-rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1,
-                               1e-5, 500, "romberg", 1e-6, 100, TRUE)
+rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1, 0.5,
+                                 1e-5, 500, "romberg", 1e-6, 100, TRUE)
+rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1, 0.1,
+                                 1e-5, 500, "romberg", 1e-6, 100, TRUE)
 
 dat <- gen_data(500, 0.2, 1, x_dist = "exp")
-rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1,
+rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1, 0.5,
+                                 1e-5, 1000, "romberg", 1e-6, 100, TRUE)
+rddsigma:::em_gauss_gauss_helper(dat$d, dat$w, 1, 0.1,
                                  1e-5, 1000, "romberg", 1e-6, 100, TRUE)
 
 */
