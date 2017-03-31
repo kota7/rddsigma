@@ -79,7 +79,7 @@ private:
     ComputeNewValueAndWeights();
 
     double increment;
-    integ_tol = integ_tol0;
+    //integ_tol = integ_tol0;
     while (true)
     {
       increment = new_value - cur_value;
