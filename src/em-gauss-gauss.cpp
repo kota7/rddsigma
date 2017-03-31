@@ -131,7 +131,10 @@ private:
       new_sdx   = sd_x + sign2*mom_rate * mom_sdx;
 
       count++;
-      mom_rate *= 0.9;
+      if (count >= 4) {
+        mom_rate *= 0.8;
+        count = 0;
+      }
 
       ComputeNewValueAndWeights();
     }
