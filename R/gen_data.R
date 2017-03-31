@@ -70,7 +70,7 @@ gen_data <- function(n, sigma, cutoff,
   } else if (u_dist == "lap") {
     u_generator <- function(n) bda::rlap(n, rate = sqrt(2)/sigma)
   } else {
-    stop("u_dist must be either 'gauss' or 'laplace'")
+    stop("u_dist must be either 'gauss' or 'lap'")
   }
 
   if (is.character(x_dist)) {
