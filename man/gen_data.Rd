@@ -4,10 +4,10 @@
 \alias{gen_data}
 \title{Generate Simulation Data for a Sharp RDD with Mismeasured Running Variable}
 \usage{
-gen_data(n, sigma, cutoff, u_dist = c("gauss", "lap"), x_dist = c("gauss",
-  "exp", "unif", "gaussmix"), mu_x = 0, sd_x = 1, rate_x = 1,
-  min_x = -sqrt(3), max_x = sqrt(3), nmix = 5, mu_min = -1.5,
-  mu_max = 1.5, sds = 0.25, ...)
+gen_data(n, sigma, cutoff, lower = FALSE, u_dist = c("gauss", "lap"),
+  x_dist = c("gauss", "exp", "unif", "gaussmix"), mu_x = 0, sd_x = 1,
+  rate_x = 1, min_x = -sqrt(3), max_x = sqrt(3), nmix = 5,
+  mu_min = -1.5, mu_max = 1.5, sds = 0.25, ...)
 }
 \arguments{
 \item{n}{sample size}
@@ -15,6 +15,9 @@ gen_data(n, sigma, cutoff, u_dist = c("gauss", "lap"), x_dist = c("gauss",
 \item{sigma}{standard deviation of the measurement error term}
 
 \item{cutoff}{threshold value for the assignment}
+
+\item{lower}{if TRUE, then those with \code{x < cutoff} are assigned (i.e. d = 1).
+Otherwise those with \code{x > cutoff} are assigned.}
 
 \item{u_dist}{distribution of the measurement error.
 Only "gauss" or "lap" is supported.}
@@ -53,4 +56,3 @@ Generate Simulation Data for a Sharp RDD with Mismeasured Running Variable
 gen_data(100, 0.2, 0)
 gen_data(100, 0.2, 1, u_dist = "lap", x_dist = "exp")
 }
-

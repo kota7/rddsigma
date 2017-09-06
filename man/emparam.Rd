@@ -45,6 +45,7 @@ known parametric distribution.
 }
 \examples{
 \dontrun{
+set.seed(456)
 dat <- gen_data(500, 0.2, 0)
 emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "gauss", verbose = TRUE)
 emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
@@ -53,4 +54,3 @@ emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)
 \references{
 Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 }
-

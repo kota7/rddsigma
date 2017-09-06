@@ -2,42 +2,42 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 emdecon_update_sigma_gauss <- function(sigma, d_vec, w_vec, cutoff, x, px) {
-    .Call('rddsigma_emdecon_update_sigma_gauss', PACKAGE = 'rddsigma', sigma, d_vec, w_vec, cutoff, x, px)
+    .Call('_rddsigma_emdecon_update_sigma_gauss', PACKAGE = 'rddsigma', sigma, d_vec, w_vec, cutoff, x, px)
 }
 
 emdecon_update_sigma_lap <- function(sigma, d_vec, w_vec, cutoff, x, px) {
-    .Call('rddsigma_emdecon_update_sigma_lap', PACKAGE = 'rddsigma', sigma, d_vec, w_vec, cutoff, x, px)
+    .Call('_rddsigma_emdecon_update_sigma_lap', PACKAGE = 'rddsigma', sigma, d_vec, w_vec, cutoff, x, px)
 }
 
 em_gauss_gauss_helper <- function(d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
-    .Call('rddsigma_em_gauss_gauss_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
+    .Call('_rddsigma_em_gauss_gauss_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
 }
 
 em_gauss_lap_helper <- function(d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose) {
-    .Call('rddsigma_em_gauss_lap_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
+    .Call('_rddsigma_em_gauss_lap_helper', PACKAGE = 'rddsigma', d_vec, w_vec, cutoff, init_sigma, tol, maxit, integ_method, integ_tol, integ_depth, verbose)
 }
 
 integrate_test <- function() {
-    invisible(.Call('rddsigma_integrate_test', PACKAGE = 'rddsigma'))
+    invisible(.Call('_rddsigma_integrate_test', PACKAGE = 'rddsigma'))
 }
 
 integrate_test2 <- function(method, tol) {
-    invisible(.Call('rddsigma_integrate_test2', PACKAGE = 'rddsigma', method, tol))
+    invisible(.Call('_rddsigma_integrate_test2', PACKAGE = 'rddsigma', method, tol))
 }
 
 integrate_test3 <- function() {
-    invisible(.Call('rddsigma_integrate_test3', PACKAGE = 'rddsigma'))
+    invisible(.Call('_rddsigma_integrate_test3', PACKAGE = 'rddsigma'))
 }
 
 integrate_test4 <- function() {
-    invisible(.Call('rddsigma_integrate_test4', PACKAGE = 'rddsigma'))
+    invisible(.Call('_rddsigma_integrate_test4', PACKAGE = 'rddsigma'))
 }
 
 tsgauss_lfunc_helper <- function(d, w, cutoff, mu_u, sd_u, sigma) {
-    .Call('rddsigma_tsgauss_lfunc_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
+    .Call('_rddsigma_tsgauss_lfunc_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
 }
 
 tsgauss_lfunc_each_helper <- function(d, w, cutoff, mu_u, sd_u, sigma) {
-    .Call('rddsigma_tsgauss_lfunc_each_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
+    .Call('_rddsigma_tsgauss_lfunc_each_helper', PACKAGE = 'rddsigma', d, w, cutoff, mu_u, sd_u, sigma)
 }
 

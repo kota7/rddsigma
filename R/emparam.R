@@ -19,6 +19,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' set.seed(456)
 #' dat <- gen_data(500, 0.2, 0)
 #' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "gauss", verbose = TRUE)
 #' emparam(dat$d, dat$w, 0, x_dist = "gauss", u_dist = "lap", verbose = TRUE)

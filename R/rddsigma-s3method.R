@@ -21,19 +21,10 @@ summary.rddsigma <- function(object, ...)
       u_dist <- object$u_dist
       warning("unsupported u_dist")
     }
+  } else {
+    stop("unknown model")
   }
-  else if (object$model == "emdecon") {
-    model <- "EM/Deconvolution"
-    x_dist <- "unspecified"
-    if (object$u_dist == "gauss") {
-      u_dist <- "Gaussian"
-    } else if (object$u_dist == "lap") {
-      u_dist <- "Laplace"
-    } else {
-      u_dist <- object$u_dist
-      warning("unsupported u_dist")
-    }
-  }
+
 
   est <- object$estimate
   se <- object$stderr

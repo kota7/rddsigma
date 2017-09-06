@@ -11,6 +11,7 @@
 #' @return object of \code{rddsigma} class
 #' @export
 #' @examples
+#' set.seed(123)
 #' dat <- gen_data(500, 0.2, 0)
 #' tsgauss(dat$d, dat$w, 0)
 #' @references

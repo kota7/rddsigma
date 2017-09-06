@@ -37,4 +37,3 @@ em_gauss_gauss(dat$d, dat$w, 0)
 }
 }
 \keyword{internal}
-

@@ -27,10 +27,10 @@ the assumption that true running variable and measurement error
 follow the Gaussian distribution.
 }
 \examples{
+set.seed(123)
 dat <- gen_data(500, 0.2, 0)
 tsgauss(dat$d, dat$w, 0)
 }
 \references{
 Kevin M. Murphy and Robert H. Topel (1985), Estimation and Inference in Two-Step Econometric Models. Journal of Business & Economic Statistics, 3(4), pp.370-379
 }
-

@@ -34,4 +34,3 @@ em_gauss_lap(dat$d, dat$w, 0)
 }
 }
 \keyword{internal}
-

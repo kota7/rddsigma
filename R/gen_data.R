@@ -2,6 +2,8 @@
 #' @param n sample size
 #' @param sigma standard deviation of the measurement error term
 #' @param cutoff threshold value for the assignment
+#' @param lower if TRUE, then those with \code{x < cutoff} are assigned (i.e. d = 1).
+#' Otherwise those with \code{x > cutoff} are assigned.
 #' @param u_dist distribution of the measurement error.
 #' Only "gauss" or "lap" is supported.
 #' @param x_dist distribution of the true running variable.
@@ -27,7 +29,7 @@
 #' @examples
 #' gen_data(100, 0.2, 0)
 #' gen_data(100, 0.2, 1, u_dist = "lap", x_dist = "exp")
-gen_data <- function(n, sigma, cutoff,
+gen_data <- function(n, sigma, cutoff, lower=FALSE,
                      u_dist = c("gauss", "lap"),
                      x_dist = c("gauss", "exp", "unif", "gaussmix"),
                      mu_x = 0, sd_x = 1,
@@ -103,6 +105,7 @@ gen_data <- function(n, sigma, cutoff,
   d <- as.integer(x > cutoff)
   w <- x + u
 
+  if (lower) d <- 1-d
   list(d = d, w = w, x = x, u = u)
 }
 
