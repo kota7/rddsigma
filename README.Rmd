@@ -17,3 +17,55 @@ knitr::opts_chunk$set(
 # rddsigma
 Sharp Regression Discontinuity Design with Running Variable Measured with Error 
 
+
+This package provides estimators for the standard deviation of measurement errors
+in running variables for sharp regression discontinuity designs.
+The estimation requires the data for observed (mismeasured) running variables and 
+assigment variables. 
+
+
+## Installation
+
+Install from GitHub using `devtools::install_github` function.
+
+```r
+devtools::install_github("kota7/rddsigma")
+```
+
+
+## Quick Start
+
+Use `estimate_sigma` function.
+```{r}
+library(rddsigma)
+set.seed(875)
+
+# generate simulation data
+dat <- gen_data(500, 0.3, 0)
+
+estimate_sigma(dat$d, dat$w, cutoff=0)
+```
+
+
+## Estimation Methods
+
+The package support two estimators for estimating `sigma`.
+The first estimator assumes that both the true runnning variable and the measurement error
+follow the Gaussian distribution.
+This is the default estimator of `estimate_sigma` function, or specified explicitly by
+setting `method="tsgauss"`
+
+```{r}
+estimate_sigma(dat$d, dat$w, cutoff=0, method="tsgauss")
+```
+
+
+The second estimator relaxes the Gaussian assumption and allows 
+the true runnning variable and the measurement error to follow some parametric distribution.
+Currently, the package supports the Gaussian distribution for the running variable and the Gaussian and Laplace distributions for the measurement error.
+This estimator is called with `method="emparam"`
+```{r}
+estimate_sigma(dat$d, dat$w, cutoff=0, method="emparam", x_dist="gauss", u_dist="gauss")
+estimate_sigma(dat$d, dat$w, cutoff=0, method="emparam", x_dist="gauss", u_dist="lap")
+```
+
