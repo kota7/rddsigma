@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
 ```
 
 [![Build Status](https://travis-ci.org/kota7/rddsigma.svg?branch=master)](https://travis-ci.org/kota7/rddsigma)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kota7/rddsigma)
 
 # rddsigma
 Sharp Regression Discontinuity Design with Running Variable Measured with Error 
